@@ -17,6 +17,7 @@ use Inertia\Inertia;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/anime-list', [HomeController::class, 'animeList'])->name('anime-list');
+Route::get('/watch', [HomeController::class, 'watch'])->name('watch');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
