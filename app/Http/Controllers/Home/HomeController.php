@@ -18,4 +18,9 @@ class HomeController extends Controller
     {
         return Inertia::render('AnimeList/Index');
     }
+
+    public function watch()
+    {
+        return Inertia::render('Watch/Index');
+    }
 }
