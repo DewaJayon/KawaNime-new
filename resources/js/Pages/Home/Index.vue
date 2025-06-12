@@ -1,12 +1,11 @@
 <script setup>
-import HomeNav from "@/Components/HomeNav.vue";
 import { Head } from "@inertiajs/vue3";
 import Carousel from "./Partials/Carousel.vue";
-import HomeFooter from "@/Components/HomeFooter.vue";
 import { ref } from "vue";
 import { Button } from "@/Components/ui/button";
 import { Icon } from "@iconify/vue";
 import { Card, CardContent } from "@/Components/ui/card";
+import HomeLayout from "@/Layouts/HomeLayout.vue";
 
 const scrollRef = ref(null);
 
@@ -21,10 +20,7 @@ function scrollRight() {
 
 <template>
     <Head title="Home" />
-
-    <div class="bg-black min-h-screen text-white">
-        <HomeNav />
-
+    <HomeLayout>
         <!-- Slider -->
         <Carousel />
 
@@ -85,7 +81,5 @@ function scrollRight() {
                 </Card>
             </div>
         </div>
-
-        <HomeFooter />
-    </div>
+    </HomeLayout>
 </template>
