@@ -88,11 +88,22 @@ onClickOutside(searchContainer, () => {
                     Kawa<span class="text-accent">Nime</span>
                 </h1>
                 <div class="hidden md:flex space-x-6">
-                    <Link href="/" class="text-accent border-b-2 border-accent">
+                    <Link
+                        href="/"
+                        :class="{
+                            'text-accent border-b-2 border-accent':
+                                route().current('home'),
+                        }"
+                        class="capitalize hover:text-accent transition-all duration-500 ease-in-out"
+                    >
                         Home
                     </Link>
                     <Link
-                        href="/"
+                        :href="route('anime-list')"
+                        :class="{
+                            'text-accent border-b-2 border-accent':
+                                route().current('anime-list'),
+                        }"
                         class="capitalize hover:text-accent transition-all duration-500 ease-in-out"
                     >
                         Anime List
