@@ -1,22 +1,66 @@
-<script setup>
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import { Link } from '@inertiajs/vue3';
-</script>
+<script setup></script>
 
 <template>
     <div
-        class="flex min-h-screen flex-col items-center bg-gray-100 pt-6 sm:justify-center sm:pt-0"
+        class="black-grid-bg min-h-screen flex items-center justify-center p-4 text-gray-200"
     >
-        <div>
-            <Link href="/">
-                <ApplicationLogo class="h-20 w-20 fill-current text-gray-500" />
-            </Link>
-        </div>
-
-        <div
-            class="mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-md sm:max-w-md sm:rounded-lg"
-        >
-            <slot />
-        </div>
+        <slot />
     </div>
 </template>
+
+<style scoped>
+.black-grid-bg {
+    background-color: #000;
+    background-image: linear-gradient(
+            to right,
+            rgba(40, 40, 40, 0.3) 1px,
+            transparent 1px
+        ),
+        linear-gradient(to bottom, rgba(40, 40, 40, 0.3) 1px, transparent 1px);
+    background-size: 24px 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Vignette Effect */
+.black-grid-bg::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at center,
+        transparent 40%,
+        rgba(0, 0, 0, 0.9) 100%
+    );
+    pointer-events: none;
+}
+
+/* Spotlight di tengah */
+.black-grid-bg::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    background: radial-gradient(
+        circle at center,
+        rgba(59, 130, 246, 0.05) 0%,
+        transparent 70%
+    );
+    animation: pulse 8s infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 0.6;
+    }
+}
+</style>

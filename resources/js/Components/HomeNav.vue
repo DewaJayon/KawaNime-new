@@ -192,13 +192,35 @@ onClickOutside(searchContainer, () => {
                         <DropdownMenuContent class="bg-black text-white">
                             <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <Link href="/profile">
+                            <Link
+                                :href="route('login')"
+                                v-if="!$page.props.auth.user"
+                            >
                                 <DropdownMenuItem
                                     class="cursor-pointer hover:text-black"
                                 >
-                                    Profile
+                                    Login
                                 </DropdownMenuItem>
                             </Link>
+                            <div v-else>
+                                <Link :href="route('profile.edit')">
+                                    <DropdownMenuItem
+                                        class="cursor-pointer hover:text-black"
+                                    >
+                                        Profile
+                                    </DropdownMenuItem>
+                                </Link>
+                                <Link
+                                    :href="route('logout')"
+                                    as="button"
+                                    method="post"
+                                    class="w-full hover:bg-accent hover:text-slate-900 cursor-pointer transition-all ease-in-out duration-300 rounded"
+                                >
+                                    <DropdownMenuItem class="cursor-pointer">
+                                        Logout
+                                    </DropdownMenuItem>
+                                </Link>
+                            </div>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
