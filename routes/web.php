@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Dashboard\BannerController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\GenreController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +15,8 @@ Route::get('/watch', [HomeController::class, 'watch'])->name('watch');
 // Dashboard Routes
 Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('banner', BannerController::class);
+    Route::resource('genre', GenreController::class);
 });
 
 Route::middleware('auth')->group(function () {
