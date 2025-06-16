@@ -23,12 +23,12 @@ import { Icon } from "@iconify/vue";
 const generalItems = [
     {
         title: "Banners",
-        url: "#",
+        routeName: "banner.index",
         icon: MountainSnow,
     },
     {
         title: "Genres",
-        url: "#",
+        routeName: "genre.index",
         icon: AlignLeft,
     },
 ];
@@ -44,11 +44,14 @@ const generalItems = [
         <SidebarContent>
             <CollapsibleRoot defaultOpen class="group/collapsible">
                 <SidebarGroup>
-                    <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+                    <SidebarGroupLabel class="text-lg"
+                        >Dashboard</SidebarGroupLabel
+                    >
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton
+                                    class="text-lg"
                                     asChild
                                     :is-active="route().current('dashboard')"
                                 >
@@ -61,7 +64,7 @@ const generalItems = [
                                         Dashboard</Link
                                     >
                                 </SidebarMenuButton>
-                                <SidebarMenuButton asChild>
+                                <SidebarMenuButton asChild class="text-lg">
                                     <Link :href="route('dashboard')">
                                         <Icon
                                             icon="material-symbols:movie"
@@ -91,10 +94,19 @@ const generalItems = [
                                     :key="item.title"
                                 >
                                     <SidebarMenuButton
+                                        class="text-lg"
                                         asChild
-                                        :is-active="route().current(item.url)"
+                                        :is-active="
+                                            route().current(item.routeName)
+                                        "
                                     >
-                                        <Link :href="item.url">
+                                        <Link
+                                            :href="
+                                                route().has(item.routeName)
+                                                    ? route(item.routeName)
+                                                    : '#'
+                                            "
+                                        >
                                             <component :is="item.icon" />
                                             <span>{{ item.title }}</span>
                                         </Link>
