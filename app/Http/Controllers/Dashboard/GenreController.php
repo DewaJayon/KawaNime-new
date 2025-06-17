@@ -14,10 +14,29 @@ class GenreController extends Controller
      */
     public function index(Request $request)
     {
-        $genres = Genre::all();
+        $query = Genre::query();
+
+        // Pastikan parameter search ada dan tidak kosong
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('slug', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Pastikan per_page valid
+        $perPage = (int) $request->get('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 10;
+
+        $genres = $query->paginate($perPage)->withQueryString();
+
 
         return Inertia::render('Dashboard/Genre/Index', [
-            'genres' => $genres
+            'genres' => $genres,
+            'search' => $request->search,
+            'filters' => $request->only(['search']),
+            'per_page' => $perPage,
         ]);
     }
 

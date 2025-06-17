@@ -5,35 +5,16 @@ import { Icon } from "@iconify/vue";
 import { DataTable, DataTableColumnHeader } from "@/Components/ui/data-table";
 import { h } from "vue";
 
-const props = defineProps({
-    genres: {
-        type: Object,
-        required: true,
-    },
+defineProps({
+    genres: Object,
+    filters: Object,
+    search: String,
+    per_page: Number, // Tambahkan ini
 });
 
-const genreColumns = [
-    {
-        accessorKey: "name",
-        header: ({ column }) =>
-            h(DataTableColumnHeader, {
-                column: column,
-                title: "Name",
-            }),
-    },
-    {
-        accessorKey: "action",
-        header: "Aksi",
-        cell: ({ row }) => {
-            return h(
-                "div",
-                {
-                    class: "flex items-center gap-2",
-                },
-                ["asdasd"]
-            );
-        },
-    },
+const columns = [
+    { key: "name", label: "Name" },
+    { key: "slug", label: "Slug" },
 ];
 </script>
 
@@ -69,7 +50,15 @@ const genreColumns = [
                 <p class="text-white">nambah</p>
             </div>
             <div class="border-t border-gray-800 sm:p-6">
-                <DataTable :data="genres" :columns="genreColumns" />
+                <DataTable
+                    :columns="columns"
+                    :rows="genres.data"
+                    :pagination="genres"
+                    :search="search"
+                    :filters="filters"
+                    :route-name="'genre.index'"
+                    :per-page="per_page"
+                />
             </div>
         </div>
     </DashboardLayout>
