@@ -80,7 +80,9 @@ const generalItems = [
 
                     <SidebarGroupLabel asChild>
                         <CollapsibleTrigger>
-                            General
+                            <SidebarGroupLabel class="text-lg"
+                                >General</SidebarGroupLabel
+                            >
                             <ChevronDown
                                 class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
                             />
