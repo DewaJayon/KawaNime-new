@@ -1,102 +1,84 @@
-<script setup lang="ts">
-import { type Table } from "@tanstack/vue-table";
+<script setup>
 import {
-    ChevronLeftIcon,
-    ChevronRightIcon,
-    ArrowLeftToLineIcon,
-    ArrowRightToLineIcon,
-} from "lucide-vue-next";
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/Components/ui/pagination";
 
-import { Button } from "@/Components/ui/button";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
+const props = defineProps({
+    pagination: Object,
+});
 
-interface DataTablePaginationProps {
-    table: Table<any>;
+const emit = defineEmits(["page-changed"]);
+
+function goToPage(page) {
+    if (
+        page >= 1 &&
+        page <= props.pagination.last_page &&
+        page !== props.pagination.current_page
+    ) {
+        emit("page-changed", page);
+    }
 }
-defineProps<DataTablePaginationProps>();
 </script>
 
 <template>
-    <div class="flex items-center justify-between px-2">
-        <div class="flex-1 text-sm text-muted-foreground">
-            {{ table.getFilteredSelectedRowModel().rows.length }} of
-            {{ table.getFilteredRowModel().rows.length }} row(s) selected.
+    <div class="flex items-center justify-between text-sm mt-4">
+        <!-- Info halaman -->
+        <div class="text-white">
+            Showing
+            <strong>{{ pagination.from }}</strong>
+            to
+            <strong>{{ pagination.to }}</strong>
+            of
+            <strong>{{ pagination.total }}</strong>
+            entries
         </div>
-        <div class="flex items-center space-x-6 lg:space-x-8">
-            <div class="flex items-center space-x-2">
-                <p class="text-sm font-medium">Rows per page</p>
-                <Select
-                    :model-value="`${table.getState().pagination.pageSize}`"
-                    @update:model-value="table.setPageSize"
-                >
-                    <SelectTrigger class="h-8 w-[70px]">
-                        <SelectValue
-                            :placeholder="`${
-                                table.getState().pagination.pageSize
-                            }`"
-                        />
-                    </SelectTrigger>
-                    <SelectContent side="top">
-                        <SelectItem
-                            v-for="pageSize in [10, 20, 30, 40, 50]"
-                            :key="pageSize"
-                            :value="`${pageSize}`"
-                        >
-                            {{ pageSize }}
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-            <div
-                class="flex w-[100px] items-center justify-center text-sm font-medium"
+
+        <!-- Tombol navigasi -->
+        <div class="flex space-x-1">
+            <Pagination
+                v-slot="{ page }"
+                :page="pagination.current_page"
+                :total="pagination.last_page"
             >
-                Page {{ table.getState().pagination.pageIndex + 1 }} of
-                {{ table.getPageCount() }}
-            </div>
-            <div class="flex items-center space-x-2">
-                <Button
-                    variant="outline"
-                    class="hidden w-8 h-8 p-0 lg:flex"
-                    :disabled="!table.getCanPreviousPage()"
-                    @click="table.setPageIndex(0)"
-                >
-                    <span class="sr-only">Go to first page</span>
-                    <ArrowLeftToLineIcon class="w-4 h-4" />
-                </Button>
-                <Button
-                    variant="outline"
-                    class="w-8 h-8 p-0"
-                    :disabled="!table.getCanPreviousPage()"
-                    @click="table.previousPage()"
-                >
-                    <span class="sr-only">Go to previous page</span>
-                    <ChevronLeftIcon class="w-4 h-4" />
-                </Button>
-                <Button
-                    variant="outline"
-                    class="w-8 h-8 p-0"
-                    :disabled="!table.getCanNextPage()"
-                    @click="table.nextPage()"
-                >
-                    <span class="sr-only">Go to next page</span>
-                    <ChevronRightIcon class="w-4 h-4" />
-                </Button>
-                <Button
-                    variant="outline"
-                    class="hidden w-8 h-8 p-0 lg:flex"
-                    :disabled="!table.getCanNextPage()"
-                    @click="table.setPageIndex(table.getPageCount() - 1)"
-                >
-                    <span class="sr-only">Go to last page</span>
-                    <ArrowRightToLineIcon class="w-4 h-4" />
-                </Button>
-            </div>
+                <PaginationContent v-slot="{ items }">
+                    <PaginationPrevious
+                        class="text-white hover:text-gray-800 transition-all ease-in-out duration-300"
+                        :disabled="pagination.current_page === 1"
+                        @click="goToPage(pagination.current_page - 1)"
+                    />
+
+                    <template v-for="(item, index) in items" :key="index">
+                        <PaginationItem
+                            class="text-white hover:text-gray-800 transition-all ease-in-out duration-300"
+                            :class="{
+                                'bg-gray-800 text-white':
+                                    item.type === 'page' && item.value === page,
+                            }"
+                            v-if="item.type === 'page'"
+                            :value="item.value"
+                            :isActive="item.value === page"
+                            @click="goToPage(item.value)"
+                        >
+                            {{ item.value }}
+                        </PaginationItem>
+                    </template>
+
+                    <PaginationEllipsis :index="4" class="text-white" />
+
+                    <PaginationNext
+                        class="text-white hover:text-gray-800 transition-all ease-in-out duration-300"
+                        :disabled="
+                            pagination.current_page === pagination.last_page
+                        "
+                        @click="goToPage(pagination.current_page + 1)"
+                    />
+                </PaginationContent>
+            </Pagination>
         </div>
     </div>
 </template>
