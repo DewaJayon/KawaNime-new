@@ -2,20 +2,17 @@
 import { Head, Link } from "@inertiajs/vue3";
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 import { Icon } from "@iconify/vue";
-import { DataTable, DataTableColumnHeader } from "@/Components/ui/data-table";
-import { h } from "vue";
+import { DataTable } from "@/Components/ui/data-table";
+import { TableColumn } from "./partials/table-column";
+import Create from "./partials/Create.vue";
+import { Separator } from "@/Components/ui/separator";
 
-defineProps({
-    genres: Object,
-    filters: Object,
-    search: String,
-    per_page: Number, // Tambahkan ini
+const props = defineProps({
+    genres: {
+        type: Object,
+        required: true,
+    },
 });
-
-const columns = [
-    { key: "name", label: "Name" },
-    { key: "slug", label: "Slug" },
-];
 </script>
 
 <template>
@@ -44,20 +41,18 @@ const columns = [
         </div>
         <div class="rounded-2xl borderp-5 border-gray-700 bg-white/[0.03]">
             <div
-                class="flex flex-wrap items-center justify-between gap-3 mb-6 p-5"
+                class="flex flex-wrap items-center justify-between gap-3 px-5 pt-5"
             >
                 <h3 class="text-lg font-semibold text-white">Genre</h3>
-                <p class="text-white">nambah</p>
+                <Create />
             </div>
-            <div class="border-t border-gray-800 sm:p-6">
+            <Separator class="mt-4 bg-gray-700/90" />
+            <div class="sm:p-6">
                 <DataTable
-                    :columns="columns"
-                    :rows="genres.data"
-                    :pagination="genres"
-                    :search="search"
-                    :filters="filters"
+                    :data="genres.data"
+                    :columns="TableColumn"
                     :route-name="'genre.index'"
-                    :per-page="per_page"
+                    :pagination="genres"
                 />
             </div>
         </div>
