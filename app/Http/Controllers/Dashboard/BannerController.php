@@ -14,17 +14,17 @@ class BannerController extends Controller
      */
     public function index(Request $request)
     {
-        
-        $banners = Banner::query()
+
+        $perPage    = $request->input('per_page', 10);
+
+        $banners     =  Banner::query()
             ->when($request->search, function ($query, $search) {
-                $query->where('headline', 'like', "%{$search}%");
+                return $query->where('headline', 'like', '%' . $search . '%')
+                    ->orWhere('subheadline', 'like', '%' . $search . '%');
             })
-            ->orderBy(
-                $request->sort ? explode('_', $request->sort)[0] : 'id',
-                $request->sort && explode('_', $request->sort)[1] === 'desc' ? 'desc' : 'asc'
-            )
-            ->paginate($request->per_page ?? 10);
-        
+            ->latest()
+            ->paginate($perPage)
+            ->withQueryString();
 
         return Inertia::render('Dashboard/Banner/Index', [
             'banners'   => $banners
