@@ -19,11 +19,16 @@ class Genre extends Model
             ]
         ];
     }
-    
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function animes()
     {
         return $this->belongsToMany(Anime::class, 'anime_genre', 'genre_id', 'anime_id')
-                    ->using(AnimeGenre::class);
+            ->using(AnimeGenre::class);
     }
 
     public function animeGenres()

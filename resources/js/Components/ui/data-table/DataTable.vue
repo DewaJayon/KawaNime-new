@@ -1,161 +1,275 @@
 <script setup>
-import { ref, watch, computed, onMounted } from "vue";
-import { usePage, router } from "@inertiajs/vue3";
-import { debounce } from "lodash";
-import DataTablePagination from "./DataTablePagination.vue";
-import ColumnHeader from "./ColumnHeader.vue";
+import {
+    FlexRender,
+    getCoreRowModel,
+    getExpandedRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useVueTable,
+} from "@tanstack/vue-table";
+
+import { router } from "@inertiajs/vue3";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/Components/ui/table";
+
+import { computed, ref, watch } from "vue";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+
+import { Input } from "@/Components/ui/input";
+
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/Components/ui/pagination";
 
 const props = defineProps({
+    data: Array,
     columns: Array,
-    rows: Array,
-    pagination: Object,
-    search: String,
-    filters: Object,
     routeName: String,
-    perPage: Number,
-    perPageOptions: {
-        type: Array,
-        default: () => [10, 25, 50, 100],
+    pagination: Object,
+});
+
+const pagination = ref({
+    pageIndex: props.pagination.current_page - 1,
+    pageSize: props.pagination.per_page,
+});
+
+const table = useVueTable({
+    get data() {
+        return props.data;
+    },
+    get columns() {
+        return props.columns;
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    manualPagination: true,
+    onPaginationChange: (updater) => {
+        if (typeof updater === "function") {
+            pagination.value = updater(pagination.value);
+        } else {
+            pagination.value = updater;
+        }
+        router.get(
+            route(props.routeName),
+            {
+                page: pagination.value.pageIndex + 1,
+                per_page: pagination.value.pageSize,
+            },
+            { preserveState: false, preserveScroll: true }
+        );
+    },
+
+    state: {
+        get pagination() {
+            return pagination.value;
+        },
     },
 });
 
-const searchTerm = ref(props.search || "");
-const currentPage = ref(props.pagination?.current_page || 1);
-const selectedPerPage = ref(props.perPage || 10);
-
-// Inisialisasi nilai dari URL saat pertama kali load
-onMounted(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    searchTerm.value = urlParams.get("search") || "";
-    selectedPerPage.value =
-        parseInt(urlParams.get("per_page")) || props.perPage || 10;
-});
-
-// Debounce untuk pencarian
-const debouncedSearch = debounce((newValue) => {
-    if (newValue !== props.search) {
-        goToPage(1);
+const goToNextPage = () => {
+    if (!isLastPage.value) {
+        pagination.value.pageIndex += 1;
     }
-}, 500);
+};
 
-watch(searchTerm, (newValue) => {
-    debouncedSearch(newValue);
+const isLastPage = computed(() => {
+    return pagination.value.pageIndex + 1 >= props.pagination.last_page;
 });
 
-watch(selectedPerPage, () => {
-    goToPage(currentPage.value);
-});
+watch(
+    () => pagination.value.pageIndex,
+    (newPage) => {
+        router.get(
+            route(props.routeName),
+            {
+                page: newPage + 1,
+                per_page: pagination.value.pageSize,
+            },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                replace: true,
+            }
+        );
+    }
+);
 
-function goToPage(page) {
+const search = ref("");
+
+watch(search, (newSearch) => {
     router.get(
         route(props.routeName),
         {
-            page,
-            search: searchTerm.value,
-            per_page: selectedPerPage.value,
-            ...props.filters,
+            page: 1,
+            per_page: pagination.value.pageSize,
+            search: newSearch,
         },
         {
+            preserveScroll: true,
             preserveState: true,
             replace: true,
         }
     );
-    currentPage.value = page;
-}
+});
 </script>
 
 <template>
-    <div class="space-y-4">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center">
-                <label class="text-sm font-medium text-gray-300 mr-2"
-                    >Show</label
-                >
-                <select
-                    v-model="selectedPerPage"
-                    class="bg-gray-700 border border-gray-600 text-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-2.5 py-1.5"
-                >
-                    <option
-                        v-for="option in perPageOptions"
-                        :key="option"
-                        :value="option"
-                        class="bg-gray-800"
-                    >
-                        {{ option }}
-                    </option>
-                </select>
-            </div>
-            <div class="relative">
-                <div
-                    class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                >
-                    <svg
-                        class="w-4 h-4 text-gray-400"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 20 20"
-                    >
-                        <path
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                        />
-                    </svg>
-                </div>
-                <input
-                    v-model="searchTerm"
-                    type="text"
-                    class="bg-gray-700 border border-gray-600 text-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-                    placeholder="Search..."
-                />
-            </div>
+    <div class="w-full">
+        <div class="pb-4">
+            <Input
+                class="max-w-sm h-11 py-3 rounded-lg border border-gray-800 focus-visible:ring-accent/85 focus-visible:ring-2 outline-none transition text-white"
+                placeholder="Search..."
+                v-model="search"
+            />
         </div>
-
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm border-collapse">
-                <thead class="bg-gray-700 text-gray-300">
-                    <tr>
-                        <th
-                            v-for="col in columns"
-                            :key="col.key"
-                            class="px-4 py-3 text-left"
-                        >
-                            <ColumnHeader :column="col" />
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="text-gray-300">
-                    <tr
-                        v-for="row in rows"
-                        :key="row.id"
-                        class="border-b border-gray-700 hover:bg-gray-700/50"
+        <div class="rounded-md border border-gray-700/90">
+            <Table>
+                <TableHeader>
+                    <TableRow
+                        class="hover:bg-transparent"
+                        v-for="headerGroup in table.getHeaderGroups()"
+                        :key="headerGroup.id"
                     >
-                        <td
-                            v-for="col in columns"
-                            :key="col.key"
-                            class="px-4 py-3"
+                        <TableHead
+                            class="border-b border-gray-700/90 text-center"
+                            v-for="header in headerGroup.headers"
+                            :key="header.id"
                         >
-                            {{ row[col.key] }}
-                        </td>
-                    </tr>
-                    <tr v-if="rows.length === 0">
-                        <td
+                            <FlexRender
+                                v-if="!header.isPlaceholder"
+                                :render="header.column.columnDef.header"
+                                :props="header.getContext()"
+                            />
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody class="divide-y text-white">
+                    <template v-if="table.getRowModel().rows?.length">
+                        <template
+                            v-for="row in table.getRowModel().rows"
+                            :key="row.id"
+                        >
+                            <TableRow
+                                :data-state="row.getIsSelected() && 'selected'"
+                                class="hover:bg-transparent"
+                            >
+                                <TableCell
+                                    class="border-b border-gray-700/90"
+                                    v-for="cell in row.getVisibleCells()"
+                                    :key="cell.id"
+                                >
+                                    <FlexRender
+                                        :render="cell.column.columnDef.cell"
+                                        :props="cell.getContext()"
+                                    />
+                                </TableCell>
+                            </TableRow>
+                            <TableRow v-if="row.getIsExpanded()">
+                                <TableCell :colspan="row.getAllCells().length">
+                                    {{ JSON.stringify(row.original) }}
+                                </TableCell>
+                            </TableRow>
+                        </template>
+                    </template>
+
+                    <TableRow v-else>
+                        <TableCell
                             :colspan="columns.length"
-                            class="px-4 py-3 text-center text-gray-400"
+                            class="h-24 text-center"
                         >
-                            No data found
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            No results.
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
         </div>
+        <div class="flex items-center justify-end space-x-2 py-4 sm:space-x-6">
+            <div class="flex items-center space-x-2">
+                <p class="text-sm font-medium text-white">Rows per page</p>
+                <Select
+                    :model-value="`${table.getState().pagination.pageSize}`"
+                    @update:model-value="table.setPageSize(Number($event))"
+                >
+                    <SelectTrigger class="h-8 w-[70px] text-white">
+                        <SelectValue
+                            class="text-white"
+                            :placeholder="`${
+                                table.getState().pagination.pageSize
+                            }`"
+                        />
+                    </SelectTrigger>
+                    <SelectContent side="top">
+                        <SelectItem
+                            class="cursor-pointer"
+                            v-for="pageSize in [10, 20, 30, 40, 50]"
+                            :key="pageSize"
+                            :value="`${pageSize}`"
+                        >
+                            {{ pageSize }}
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <div class="overflow-auto sm:overflow-visible max-w-full">
+                <div class="flex items-center space-x-2">
+                    <Pagination
+                        v-slot="{ page }"
+                        :items-per-page="props.pagination.per_page"
+                        :total="props.pagination.total"
+                        :default-page="props.pagination.current_page"
+                    >
+                        <PaginationContent v-slot="{ items }" class="flex">
+                            <PaginationPrevious
+                                class="text-white border hover:text-gray-800 transition-all ease-in-out duration-300"
+                                :disabled="!table.getCanPreviousPage()"
+                                @click="table.previousPage()"
+                            />
 
-        <DataTablePagination
-            :pagination="pagination"
-            @page-changed="goToPage"
-        />
+                            <template
+                                v-for="(item, index) in items"
+                                :key="index"
+                            >
+                                <PaginationItem
+                                    class="text-white border hover:text-gray-800 transition-all ease-in-out duration-300 disabled:opacity-50 disabled:bg-gray-800 disabled:cursor-not-allowed"
+                                    v-if="item.type === 'page'"
+                                    :value="item.value"
+                                    :is-active="item.value === page"
+                                    :disabled="item.value === page"
+                                    @click="table.setPageIndex(item.value - 1)"
+                                >
+                                    {{ item.value }}
+                                </PaginationItem>
+                            </template>
+
+                            <PaginationNext
+                                class="text-white border hover:text-gray-800 transition-all ease-in-out duration-300"
+                                :disabled="isLastPage"
+                                @click="goToNextPage"
+                            />
+                        </PaginationContent>
+                    </Pagination>
+                </div>
+            </div>
+        </div>
     </div>
 </template>

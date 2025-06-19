@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Genre;
+use Cviebrock\EloquentSluggable\Services\SlugService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,38 +15,19 @@ class GenreController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Genre::query();
+        $perPage    = $request->input('per_page', 10);
 
-        // Pastikan parameter search ada dan tidak kosong
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('slug', 'like', '%' . $search . '%');
-            });
-        }
-
-        // Pastikan per_page valid
-        $perPage = (int) $request->get('per_page', 10);
-        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 10;
-
-        $genres = $query->paginate($perPage)->withQueryString();
-
+        $genres     =  Genre::query()
+            ->when($request->search, function ($query, $search) {
+                return $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->latest()
+            ->paginate($perPage)
+            ->withQueryString();
 
         return Inertia::render('Dashboard/Genre/Index', [
-            'genres' => $genres,
-            'search' => $request->search,
-            'filters' => $request->only(['search']),
-            'per_page' => $perPage,
+            'genres' => $genres
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -53,38 +35,58 @@ class GenreController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $request->validate([
+            "name" => "required|string|max:255"
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $slug = SlugService::createSlug(Genre::class, 'slug', $request->name);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        $params = [
+            'name' => $request->name,
+            'slug' => $slug
+        ];
+
+        Genre::create($params);
+
+        return back()->with('success', 'Genre berhasil ditambahkan!');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Genre $genre)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $validated['slug'] = SlugService::createSlug(Genre::class, 'slug', $request->name);
+
+        $params = [
+            'name' => $validated['name'],
+            'slug' => $validated['slug']
+        ];
+
+        try {
+            $genre->update($params);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+
+        return back()->with('success', 'Genre berhasil diupdate!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Genre $genre)
     {
-        //
+        try {
+            $genre->delete();
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+
+        return back()->with('success', 'Genre berhasil dihapus!');
     }
 }

@@ -16,7 +16,7 @@ Route::get('/watch', [HomeController::class, 'watch'])->name('watch');
 Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('banner', BannerController::class);
-    Route::resource('genre', GenreController::class);
+    Route::resource('genre', GenreController::class)->except(['create', 'show', 'edit']);
 });
 
 Route::middleware('auth')->group(function () {
