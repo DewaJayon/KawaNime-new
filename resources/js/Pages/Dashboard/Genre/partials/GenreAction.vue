@@ -28,7 +28,7 @@ import { Label } from "@/Components/ui/label";
 import InputError from "@/Components/InputError.vue";
 import { ref } from "vue";
 import Spinner from "@/Components/Spinner.vue";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/Components/ui/button";
 
 const props = defineProps({
     row: Object,

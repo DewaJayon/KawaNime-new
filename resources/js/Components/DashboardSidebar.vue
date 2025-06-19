@@ -42,47 +42,44 @@ const generalItems = [
             </h1>
         </SidebarHeader>
         <SidebarContent>
+            <SidebarGroup>
+                <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton
+                                asChild
+                                :is-active="route().current('dashboard')"
+                            >
+                                <Link :href="route('dashboard')">
+                                    <Icon
+                                        icon="material-symbols:dashboard"
+                                        width="24"
+                                        height="24"
+                                    />
+                                    Dashboard</Link
+                                >
+                            </SidebarMenuButton>
+                            <SidebarMenuButton asChild>
+                                <Link :href="route('dashboard')">
+                                    <Icon
+                                        icon="material-symbols:movie"
+                                        width="24"
+                                        height="24"
+                                    />
+                                    Anime
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+
             <CollapsibleRoot defaultOpen class="group/collapsible">
                 <SidebarGroup>
-                    <SidebarGroupLabel class="text-lg"
-                        >Dashboard</SidebarGroupLabel
-                    >
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton
-                                    class="text-lg"
-                                    asChild
-                                    :is-active="route().current('dashboard')"
-                                >
-                                    <Link :href="route('dashboard')">
-                                        <Icon
-                                            icon="material-symbols:dashboard"
-                                            width="24"
-                                            height="24"
-                                        />
-                                        Dashboard</Link
-                                    >
-                                </SidebarMenuButton>
-                                <SidebarMenuButton asChild class="text-lg">
-                                    <Link :href="route('dashboard')">
-                                        <Icon
-                                            icon="material-symbols:movie"
-                                            width="24"
-                                            height="24"
-                                        />
-                                        Anime
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-
                     <SidebarGroupLabel asChild>
                         <CollapsibleTrigger>
-                            <SidebarGroupLabel class="text-lg"
-                                >General</SidebarGroupLabel
-                            >
+                            General
                             <ChevronDown
                                 class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
                             />
@@ -96,7 +93,6 @@ const generalItems = [
                                     :key="item.title"
                                 >
                                     <SidebarMenuButton
-                                        class="text-lg"
                                         asChild
                                         :is-active="
                                             route().current(item.routeName)
@@ -119,6 +115,26 @@ const generalItems = [
                     </CollapsibleContent>
                 </SidebarGroup>
             </CollapsibleRoot>
+
+            <SidebarGroup>
+                <SidebarGroupLabel>Lainnya...</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild>
+                                <a :href="route('home')" target="_blank">
+                                    <Icon
+                                        icon="streamline-plump:web"
+                                        width="24"
+                                        height="24"
+                                    />
+                                    Lihat Website</a
+                                >
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
         </SidebarContent>
     </Sidebar>
 </template>

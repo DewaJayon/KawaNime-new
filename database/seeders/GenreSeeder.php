@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Genre;
+use Cviebrock\EloquentSluggable\Services\SlugService;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
 
 class GenreSeeder extends Seeder
 {
@@ -14,10 +16,12 @@ class GenreSeeder extends Seeder
     public function run(): void
     {
 
-        for ($i = 0; $i < 100; $i++) {
+        $genres = json_decode(File::get(database_path('seeders/genres.json')), true);
+
+        foreach ($genres as $genre) {
             Genre::create([
-                'name' => fake()->name(),
-                'slug' => fake()->slug()
+                'name' => $genre,
+                'slug' => SlugService::createSlug(Genre::class, 'slug', $genre)
             ]);
         }
     }

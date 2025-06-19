@@ -2,7 +2,10 @@
 import { Head, Link } from "@inertiajs/vue3";
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 import { Icon } from "@iconify/vue";
+import { Separator } from "@/Components/ui/separator";
 import { DataTable } from "@/Components/ui/data-table";
+import { TableColumn } from "./partials/table-column";
+import Create from "./partials/Create.vue";
 
 const props = defineProps({
     banners: {
@@ -10,24 +13,6 @@ const props = defineProps({
         required: true,
     },
 });
-
-const bannerColumns = [
-    {
-        accessorKey: "headline",
-        header: "Headline",
-        enableSorting: true,
-    },
-    {
-        accessorKey: "subheadline",
-        header: "Sub Headline",
-        enableSorting: true,
-    },
-    {
-        accessorKey: "is_active",
-        header: "Status",
-        enableSorting: true,
-    },
-];
 </script>
 
 <template>
@@ -56,13 +41,19 @@ const bannerColumns = [
         </div>
         <div class="rounded-2xl borderp-5 border-gray-700 bg-white/[0.03]">
             <div
-                class="flex flex-wrap items-center justify-between gap-3 mb-6 p-5"
+                class="flex flex-wrap items-center justify-between gap-3 px-5 pt-5"
             >
                 <h3 class="text-lg font-semibold text-white">Banner</h3>
-                <p class="text-white">nambah</p>
+                <Create />
             </div>
-            <div class="border-t border-gray-800 sm:p-6">
-                <DataTable :data="banners.data" :columns="bannerColumns" />
+            <Separator class="mt-4 bg-gray-700/90" />
+            <div class="sm:p-6">
+                <DataTable
+                    :data="banners.data"
+                    :columns="TableColumn"
+                    :route-name="'banner.index'"
+                    :pagination="banners"
+                />
             </div>
         </div>
     </DashboardLayout>
