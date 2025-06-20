@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlignLeft, ChevronDown, MountainSnow } from "lucide-vue-next";
+import { AlignLeft, ChevronDown, MountainSnow, User } from "lucide-vue-next";
 import {
     Sidebar,
     SidebarContent,
@@ -30,6 +30,11 @@ const generalItems = [
         title: "Genres",
         routeName: "genre.index",
         icon: AlignLeft,
+    },
+    {
+        title: "Users",
+        routeName: "user.index",
+        icon: User,
     },
 ];
 </script>
