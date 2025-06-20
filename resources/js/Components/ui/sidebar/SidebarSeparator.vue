@@ -1,17 +1,17 @@
 <script setup>
 import { cn } from "@/lib/utils";
-import { Separator } from '@/components/ui/separator';
+import { Separator } from "@/Components/ui/separator";
 
 const props = defineProps({
-  class: { type: null, required: false },
+    class: { type: null, required: false },
 });
 </script>
 
 <template>
-  <Separator
-    data-sidebar="separator"
-    :class="cn('mx-2 w-auto bg-sidebar-border', props.class)"
-  >
-    <slot />
-  </Separator>
+    <Separator
+        data-sidebar="separator"
+        :class="cn('mx-2 w-auto bg-sidebar-border', props.class)"
+    >
+        <slot />
+    </Separator>
 </template>

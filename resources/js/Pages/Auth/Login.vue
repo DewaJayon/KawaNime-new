@@ -136,7 +136,7 @@ const loginWithGoogle = () => {
                     </div>
 
                     <Button
-                        class="w-full bg-accent hover:bg-accent/60 transition-all ease-in-out duration-300"
+                        class="w-full bg-accent hover:bg-accent/60 transition-all ease-in-out duration-300 text-slate-900"
                         >Login</Button
                     >
                 </form>
