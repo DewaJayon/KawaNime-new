@@ -9,7 +9,17 @@ class Anime extends Model
 {
     use Sluggable;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'title',
+        'slug',
+        'description',
+        'thumbnail',
+        'type',
+        'status',
+        'studio',
+        'release_date',
+        'director',
+    ];
 
     public function sluggable(): array
     {
@@ -20,20 +30,19 @@ class Anime extends Model
         ];
     }
 
-    public function episodes()
+    public function getRouteKeyName(): string
     {
-        return $this->hasMany(Episode::class);
+        return 'slug';
     }
 
     public function genres()
     {
-        return $this->belongsToMany(Genre::class, 'anime_genres', 'anime_id', 'genre_id')
-                    ->using(AnimeGenre::class);;
+        return $this->belongsToMany(Genre::class);
     }
 
-    public function animeGenres()
+    public function episodes()
     {
-        return $this->hasMany(AnimeGenre::class);
+        return $this->hasMany(Episode::class);
     }
 
     public function banners()

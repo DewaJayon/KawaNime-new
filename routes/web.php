@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dashboard\AnimeController;
 use App\Http\Controllers\Dashboard\BannerController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\GenreController;
@@ -22,6 +23,11 @@ Route::prefix('dashboard')->middleware(['auth', IsAdmin::class])->group(function
 
     Route::resource('user', UserController::class)->except(['create', 'show', 'edit']);
     Route::patch('user/reset-password/{user}', [UserController::class, 'resetPassword'])->name('dashboard.user.reset-password');
+
+    Route::resource('/anime', AnimeController::class)->names('dashboard.anime')->except(['create', 'show', 'edit']);
+    Route::get('/anime/create', function () {
+        abort(404);
+    });
 });
 
 Route::middleware('auth')->group(function () {

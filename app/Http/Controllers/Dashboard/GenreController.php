@@ -21,7 +21,7 @@ class GenreController extends Controller
             ->when($request->search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })
-            ->latest()
+            ->orderBy('name', 'asc')
             ->paginate($perPage)
             ->withQueryString();
 
