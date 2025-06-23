@@ -65,8 +65,13 @@ const generalItems = [
                                     Dashboard</Link
                                 >
                             </SidebarMenuButton>
-                            <SidebarMenuButton asChild>
-                                <Link :href="route('dashboard')">
+                            <SidebarMenuButton
+                                asChild
+                                :is-active="
+                                    route().current('dashboard.anime.*')
+                                "
+                            >
+                                <Link :href="route('dashboard.anime.index')">
                                     <Icon
                                         icon="material-symbols:movie"
                                         width="24"
