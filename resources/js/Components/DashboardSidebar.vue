@@ -68,7 +68,8 @@ const generalItems = [
                             <SidebarMenuButton
                                 asChild
                                 :is-active="
-                                    route().current('dashboard.anime.*')
+                                    route().current('dashboard.anime.*') ||
+                                    route().current('dashboard.episode.*')
                                 "
                             >
                                 <Link :href="route('dashboard.anime.index')">

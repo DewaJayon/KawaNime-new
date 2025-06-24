@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Anime;
-use App\Http\Requests\StoreAnimeRequest;
-use App\Http\Requests\UpdateAnimeRequest;
+use App\Http\Requests\Dashboard\StoreAnimeRequest;
+use App\Http\Requests\Dashboard\UpdateAnimeRequest;
 use App\Models\Genre;
 use Cviebrock\EloquentSluggable\Services\SlugService;
 use Illuminate\Http\Request;

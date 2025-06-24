@@ -65,6 +65,9 @@ const submit = () => {
             toast.success("Anime berhasil ditambahkan");
             isDialogOpen.value = false;
         },
+        onFinish: () => {
+            form.reset();
+        },
     });
 };
 </script>
