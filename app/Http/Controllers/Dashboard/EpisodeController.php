@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Episode;
 use App\Http\Requests\Dashboard\StoreEpisodeRequest;
 use App\Http\Requests\Dashboard\UpdateEpisodeRequest;
+use App\Jobs\ProcessEpisodeVideo;
 use App\Models\Anime;
 use Cviebrock\EloquentSluggable\Services\SlugService;
+use Illuminate\Contracts\Cache\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
+use Illuminate\Support\Str;
 
 class EpisodeController extends Controller
 {
@@ -51,13 +54,26 @@ class EpisodeController extends Controller
     {
         $data = $request->validated();
 
-        $data['slug'] = SlugService::createSlug(Anime::class, 'slug', $data['title']);
+        $data['slug'] = Str::slug("{$anime->slug}-episode-{$data['episode_number']}");
+        $filename = $data['slug'];
+        $basePath = "anime/{$anime->slug}/episode/{$filename}";
 
         if ($request->hasFile('video_url')) {
-            // anime/naroto/episodes/1
-            $filePath = "anime/$anime->slug/episodes/$data[episode_number]";
+            $request->file('video_url')->storeAs($basePath, "{$filename}.mp4", 'public');
+            $data['video_url'] = "{$basePath}/{$filename}.mp4";
         }
+
+        $data['thumbnail_url'] = "{$basePath}/thumbnail.jpg";
+
+        $data['anime_id'] = $anime->id;
+
+        $episode = Episode::create($data);
+
+        ProcessEpisodeVideo::dispatch($episode);
+
+        return back()->with('success', 'Episode berhasil ditambahkan! Video sedang diproses di latar belakang.');
     }
+
 
     /**
      * Display the specified resource.
