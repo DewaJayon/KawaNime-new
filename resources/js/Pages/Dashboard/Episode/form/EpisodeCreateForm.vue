@@ -23,7 +23,7 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Icon } from "@iconify/vue";
 import { useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useDropZone } from "@vueuse/core";
 import { toast } from "vue-sonner";
 
@@ -36,17 +36,16 @@ const props = defineProps({
 
 const isDialogOpen = ref(false);
 const videoFile = ref(null);
-const videoPreview = ref(null); // blob preview
-const fileInput = ref(null); // for click trigger
+const videoPreview = ref(null);
+const fileInput = ref(null);
 
 const form = useForm({
     title: "",
-    episode_number: Number(1),
-    duration: Number(1),
+    episode_number: 1,
+    duration: 1,
     video_url: null,
 });
 
-// Dropzone logic
 const dropZoneRef = ref(null);
 useDropZone(dropZoneRef, {
     onDrop(files) {
@@ -54,7 +53,6 @@ useDropZone(dropZoneRef, {
     },
 });
 
-// Handler untuk file input dan dropzone
 const handleVideoSelect = (file) => {
     if (!file.type.startsWith("video/")) {
         toast.error("Hanya file video yang diperbolehkan!");
@@ -76,16 +74,18 @@ const submit = () => {
     }
 
     form.post(route("dashboard.episode.store", props.anime.slug), {
-        // onSuccess: () => {
-        //     toast.success("Episode berhasil ditambahkan!");
-        //     form.reset();
-        //     videoFile.value = null;
-        //     videoPreview.value = null;
-        //     isDialogOpen.value = false;
-        // },
-        // onError: () => {
-        //     toast.error("Terjadi kesalahan saat menyimpan.");
-        // },
+        onSuccess: () => {
+            toast.success("Episode berhasil ditambahkan!", {
+                description: "Resolusi video akan diproses di latar belakang.",
+            });
+            form.reset();
+            videoFile.value = null;
+            videoPreview.value = null;
+            isDialogOpen.value = false;
+        },
+        onError: () => {
+            toast.error("Terjadi kesalahan saat menyimpan.");
+        },
     });
 };
 </script>
@@ -155,6 +155,10 @@ const submit = () => {
                                 />
                                 <NumberFieldInput
                                     v-model="form.episode_number"
+                                    @change="
+                                        form.episode_number =
+                                            $event.target.value
+                                    "
                                     class="w-full h-11 py-3 rounded-lg border border-slate-700 focus-visible:ring-accent/50 focus-visible:ring-2 outline-none transition text-white"
                                 />
                                 <NumberFieldIncrement
@@ -181,6 +185,9 @@ const submit = () => {
                                     class="disabled:opacity-50 text-white"
                                 />
                                 <NumberFieldInput
+                                    @change="
+                                        form.duration = $event.target.value
+                                    "
                                     v-model="form.duration"
                                     class="w-full h-11 py-3 rounded-lg border border-slate-700 focus-visible:ring-accent/50 focus-visible:ring-2 outline-none transition text-white"
                                 />
@@ -223,6 +230,7 @@ const submit = () => {
                     <input
                         ref="fileInput"
                         type="file"
+                        accept="video/mp4"
                         class="hidden"
                         @change="(e) => handleVideoSelect(e.target.files[0])"
                     />

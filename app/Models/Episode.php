@@ -16,6 +16,7 @@ class Episode extends Model
         'episode_number',
         'video_url',
         'video_sources',
+        'thumbnail_url',
         'duration',
     ];
 
