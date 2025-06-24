@@ -9,7 +9,15 @@ class Episode extends Model
 {
     use Sluggable;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'anime_id',
+        'title',
+        'slug',
+        'episode_number',
+        'video_url',
+        'video_sources',
+        'duration',
+    ];
 
     public function sluggable(): array
     {

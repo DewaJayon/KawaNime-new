@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Dashboard;
 
-use App\Http\Middleware\IsAdmin;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class StoreAnimeRequest extends FormRequest
+class UpdateAnimeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,14 +25,14 @@ class StoreAnimeRequest extends FormRequest
     {
         return [
             'title'         => 'required|string|max:255',
-            'description'   => 'required',
+            'description'   => 'required|string',
             'type'          => 'required|in:series,movie,live_action',
             'status'        => 'required|in:ongoing,completed',
             'studio'        => 'required|string|max:255',
-            'director'      => $this->type === 'series' ? 'nullable' : 'nullable|string|max:255',
+            'director'      => 'nullable|string|max:255',
             'release_date'  => 'required|date',
-            'thumbnail'     => 'required|image|mimes:jpeg,png,jpg',
-            'genre_ids'     => 'required|array',
+            'thumbnail'     => 'nullable|image|mimes:jpeg,png,jpg',
+            'genre_ids'     => 'nullable|array',
             'genre_ids.*'   => 'exists:genres,id',
         ];
     }
@@ -41,11 +40,10 @@ class StoreAnimeRequest extends FormRequest
     /**
      * Prepare the data for validation.
      *
-     * If the 'release_date' field is present, it converts the field to a standard date string format.
+     * If the 'release_date' field is present, convert it to a date string.
      *
      * @return void
      */
-
     public function prepareForValidation()
     {
         if ($this->has('release_date')) {

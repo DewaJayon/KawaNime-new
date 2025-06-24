@@ -3,6 +3,7 @@
 use App\Http\Controllers\Dashboard\AnimeController;
 use App\Http\Controllers\Dashboard\BannerController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\EpisodeController;
 use App\Http\Controllers\Dashboard\GenreController;
 use App\Http\Controllers\Dashboard\UserController;
 use App\Http\Controllers\Home\HomeController;
@@ -26,6 +27,11 @@ Route::prefix('dashboard')->middleware(['auth', IsAdmin::class])->group(function
 
     Route::resource('/anime', AnimeController::class)->names('dashboard.anime')->except(['create', 'show', 'edit']);
     Route::get('/anime/create', function () {
+        abort(404);
+    });
+
+    Route::resource('anime.episode', EpisodeController::class)->names('dashboard.episode')->except(['create', 'show', 'edit']);
+    Route::get('/anime/{anime}/episode/create', function () {
         abort(404);
     });
 });

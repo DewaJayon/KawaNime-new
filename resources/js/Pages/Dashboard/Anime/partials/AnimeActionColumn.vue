@@ -8,7 +8,7 @@ import {
 import { Icon } from "@iconify/vue";
 import AnimeUpdateForm from "../form/AnimeUpdateForm.vue";
 import { ref } from "vue";
-import { usePage } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
 import DeleteAnime from "./DeleteAnime.vue";
 
 const props = defineProps({
@@ -19,6 +19,10 @@ const isEditDialogOpen = ref(false);
 const isDeleteDialogOpen = ref(false);
 const page = usePage();
 const genres = page.props.genres;
+
+const goToEpisode = (slug) => {
+    router.get(route("dashboard.episode.index", slug));
+};
 </script>
 
 <template>
@@ -36,7 +40,10 @@ const genres = page.props.genres;
                 Edit
             </DropdownMenuItem>
 
-            <DropdownMenuItem class="hover:text-black cursor-pointer">
+            <DropdownMenuItem
+                class="hover:text-black cursor-pointer"
+                @click="goToEpisode(row.slug)"
+            >
                 <Icon icon="tabler:plus" />
                 Tambah Episode
             </DropdownMenuItem>

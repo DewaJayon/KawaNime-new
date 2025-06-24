@@ -43,6 +43,10 @@ const props = defineProps({
     columns: Array,
     routeName: String,
     pagination: Object,
+    routeParams: {
+        type: Object,
+        required: false,
+    },
 });
 
 const pagination = ref({
@@ -70,7 +74,7 @@ const table = useVueTable({
             pagination.value = updater;
         }
         router.get(
-            route(props.routeName),
+            route(props.routeName, props.routeParams),
             {
                 page: pagination.value.pageIndex + 1,
                 per_page: pagination.value.pageSize,
@@ -100,7 +104,7 @@ watch(
     () => pagination.value.pageIndex,
     (newPage) => {
         router.get(
-            route(props.routeName),
+            route(props.routeName, props.routeParams),
             {
                 page: newPage + 1,
                 per_page: pagination.value.pageSize,
@@ -118,7 +122,7 @@ const search = ref("");
 
 watch(search, (newSearch) => {
     router.get(
-        route(props.routeName),
+        route(props.routeName, props.routeParams),
         {
             page: 1,
             per_page: pagination.value.pageSize,

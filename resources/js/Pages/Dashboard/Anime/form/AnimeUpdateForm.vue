@@ -56,7 +56,6 @@ const form = useForm({
     release_date: new Date(props.row.release_date),
     genre_ids: props.row.genres.map((genre) => genre.id),
 });
-console.log(thumbnail.value);
 
 // inisiasi form thumbnail ketika dirubah
 watch(thumbnail, (newValue) => {
@@ -90,7 +89,6 @@ const submit = () => {
             showProgress: false,
             onSuccess: () => {
                 toast.success("Anime berhasil diubah");
-                form.reset();
                 closeDialog();
             },
             onFinish: () => {
