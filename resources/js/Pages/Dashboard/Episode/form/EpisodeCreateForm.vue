@@ -129,7 +129,7 @@ const submit = () => {
                         <Input
                             type="text"
                             id="title"
-                            placeholder="Contoh: Demon Slayer Kimetsu no Yaiba Episode 1"
+                            placeholder="Sesuaikan dengan judul anime, contoh: Demon Slayer Episode 1"
                             v-model="form.title"
                             required
                             autocomplete="off"

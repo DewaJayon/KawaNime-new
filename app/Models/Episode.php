@@ -15,9 +15,9 @@ class Episode extends Model
         'slug',
         'episode_number',
         'video_url',
-        'video_sources',
         'thumbnail_url',
         'duration',
+        'conversion_status',
     ];
 
     public function sluggable(): array
