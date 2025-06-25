@@ -86,9 +86,14 @@ class EpisodeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Episode $episode)
+    public function edit(Anime $anime, Episode $episode)
     {
-        //
+        // dd($episode->toArray(), $anime->only('id', 'title', 'slug'));
+
+        return Inertia::render('Dashboard/Episode/Edit', [
+            'episode' => $episode,
+            'anime'   => $anime->only('id', 'title', 'slug'),
+        ]);
     }
 
     /**

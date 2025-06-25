@@ -30,7 +30,7 @@ Route::prefix('dashboard')->middleware(['auth', IsAdmin::class])->group(function
         abort(404);
     });
 
-    Route::resource('anime.episode', EpisodeController::class)->names('dashboard.episode')->except(['create', 'show', 'edit']);
+    Route::resource('anime.episode', EpisodeController::class)->names('dashboard.episode')->except(['create', 'show']);
     Route::get('/anime/{anime}/episode/create', function () {
         abort(404);
     });

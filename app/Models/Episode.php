@@ -29,6 +29,11 @@ class Episode extends Model
         ];
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function anime()
     {
         return $this->belongsTo(Anime::class);
