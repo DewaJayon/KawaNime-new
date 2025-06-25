@@ -1,9 +1,22 @@
 <script setup>
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, useForm } from "@inertiajs/vue3";
 import { Icon } from "@iconify/vue";
 import { Separator } from "@/Components/ui/separator";
 import { Button } from "@/Components/ui/button";
+import {
+    NumberField,
+    NumberFieldContent,
+    NumberFieldDecrement,
+    NumberFieldIncrement,
+    NumberFieldInput,
+} from "@/Components/ui/number-field";
+import InputError from "@/Components/InputError.vue";
+import { Label } from "@/Components/ui/label";
+import { Input } from "@/Components/ui/input";
+import Hls from "hls.js";
+import Plyr from "plyr";
+import { onMounted } from "vue";
 
 const props = defineProps({
     episode: {
@@ -14,6 +27,72 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+});
+
+const form = useForm({
+    title: props.episode.title,
+    episode_number: props.episode.episode_number,
+    duration: props.episode.duration,
+    description: props.episode.description,
+    image: props.episode.image,
+});
+
+onMounted(() => {
+    const video = document.getElementById("player");
+    const source = `/storage/${props.episode.video_url}`;
+
+    const defaultOptions = {
+        controls: [
+            "play-large",
+            "restart",
+            "rewind",
+            "play",
+            "fast-forward",
+            "progress",
+            "current-time",
+            "duration",
+            "mute",
+            "volume",
+            "captions",
+            "settings",
+            "pip",
+            "airplay",
+            "fullscreen",
+        ],
+        settings: ["quality", "speed", "loop"], // Tambahkan ini
+    };
+
+    if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(source);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+            const availableQualities = hls.levels.map((l) => l.height);
+
+            defaultOptions.quality = {
+                default: availableQualities[0],
+                options: availableQualities,
+                forced: true,
+                onChange: (e) => updateQuality(e),
+            };
+
+            new Plyr(video, defaultOptions);
+        });
+
+        hls.attachMedia(video);
+        window.hls = hls;
+    } else {
+        video.src = source;
+        new Plyr(video, defaultOptions);
+    }
+
+    function updateQuality(newQuality) {
+        window.hls.levels.forEach((level, levelIndex) => {
+            if (level.height === newQuality) {
+                window.hls.currentLevel = levelIndex;
+            }
+        });
+    }
 });
 </script>
 
@@ -72,7 +151,107 @@ const props = defineProps({
                 </Link>
             </div>
             <Separator class="mt-4 bg-gray-700/90" />
-            <div class="sm:p-6">form aja ntar</div>
+            <div class="sm:p-6">
+                <form
+                    id="form"
+                    class="p-4 grid grid-cols-1 md:grid-cols-2 gap-6"
+                >
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <Label class="text-white">Judul</Label>
+                            <Input
+                                type="text"
+                                id="title"
+                                placeholder="Contoh: Demon Slayer Kimetsu no Yaiba Episode 1"
+                                v-model="form.title"
+                                required
+                                autocomplete="off"
+                                class="w-full h-11 py-3 rounded-lg border border-slate-700 focus-visible:ring-accent/50 focus-visible:ring-2 outline-none transition text-white"
+                            />
+                            <InputError :message="form.errors.title" />
+                        </div>
+
+                        <div>
+                            <NumberField
+                                id="episode_number"
+                                :default-value="form.episode_number"
+                                :min="0"
+                            >
+                                <Label for="episode_number" class="text-white"
+                                    >Nomor Episode</Label
+                                >
+                                <NumberFieldContent>
+                                    <NumberFieldDecrement
+                                        :disabled="
+                                            form.episode_number === 1 ||
+                                            form.episode_number === 0
+                                        "
+                                        @click="form.episode_number--"
+                                        class="disabled:opacity-50 text-white"
+                                    />
+                                    <NumberFieldInput
+                                        v-model="form.episode_number"
+                                        @change="
+                                            form.episode_number =
+                                                $event.target.value
+                                        "
+                                        type="number"
+                                        class="w-full h-11 py-3 rounded-lg border border-slate-700 focus-visible:ring-accent/50 focus-visible:ring-2 outline-none transition text-white"
+                                    />
+                                    <NumberFieldIncrement
+                                        @click="form.episode_number++"
+                                        class="text-white"
+                                    />
+                                </NumberFieldContent>
+                            </NumberField>
+                            <InputError :message="form.errors.episode_number" />
+                        </div>
+
+                        <div>
+                            <NumberField
+                                id="duration"
+                                :default-value="form.duration"
+                                :min="0"
+                            >
+                                <Label for="duration" class="text-white"
+                                    >Durasi Episode (Menit)</Label
+                                >
+                                <NumberFieldContent>
+                                    <NumberFieldDecrement
+                                        :disabled="
+                                            form.duration === 1 ||
+                                            form.duration === 0
+                                        "
+                                        @click="form.duration--"
+                                        class="disabled:opacity-50 text-white"
+                                    />
+                                    <NumberFieldInput
+                                        @change="
+                                            form.duration = $event.target.value
+                                        "
+                                        v-model="form.duration"
+                                        class="w-full h-11 py-3 rounded-lg border border-slate-700 focus-visible:ring-accent/50 focus-visible:ring-2 outline-none transition text-white"
+                                    />
+                                    <NumberFieldIncrement
+                                        @click="form.duration++"
+                                        class="text-white"
+                                    />
+                                </NumberFieldContent>
+                            </NumberField>
+                            <InputError :message="form.errors.duration" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <video
+                            id="player"
+                            controls
+                            crossorigin
+                            playsinline
+                        ></video>
+                    </div>
+                </form>
+            </div>
         </div>
     </DashboardLayout>
 </template>

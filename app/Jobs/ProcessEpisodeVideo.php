@@ -4,13 +4,14 @@ namespace App\Jobs;
 
 use App\Models\Episode;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
-use App\FFMpeg\NvencFormat;
 use FFMpeg\Format\Video\X264;
+use App\FFMpeg\NvencFormat;
 
 class ProcessEpisodeVideo implements ShouldQueue
 {
@@ -18,17 +19,11 @@ class ProcessEpisodeVideo implements ShouldQueue
 
     public $episode;
 
-    /**
-     * Create a new job instance.
-     */
     public function __construct(Episode $episode)
     {
         $this->episode = $episode;
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         $anime = $this->episode->anime;
@@ -37,9 +32,10 @@ class ProcessEpisodeVideo implements ShouldQueue
 
         $basePath = "anime/{$slug}/episode/{$epSlug}";
         $originalPath = "{$basePath}/{$epSlug}.mp4";
-
         $thumbPath = "{$basePath}/thumbnail.jpg";
+        $outputPath = "{$basePath}/converted";
 
+        // Generate thumbnail
         FFMpeg::fromDisk('public')
             ->open($originalPath)
             ->getFrameFromSeconds(5)
@@ -47,55 +43,42 @@ class ProcessEpisodeVideo implements ShouldQueue
             ->toDisk('public')
             ->save($thumbPath);
 
-        $resolutions = [
-            '360p'  => [640, 360],
-            '480p'  => [854, 480],
-            '720p'  => [1280, 720],
-            '1080p' => [1920, 1080],
-        ];
-
-        $bitrates = [
-            '360p'  => 600,
-            '480p'  => 1000,
-            '720p'  => 2500,
-            '1080p' => 4500,
-        ];
-
-        $videoSources = [];
-
+        // Cek apakah NVENC tersedia
         $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
         $cmd = $isWindows ? 'ffmpeg -hide_banner -encoders | findstr nvenc' : 'ffmpeg -hide_banner -encoders | grep nvenc';
         $nvidiaAvailable = str_contains(shell_exec($cmd), 'h264_nvenc');
 
-        foreach ($resolutions as $label => [$w, $h]) {
-            echo "Mulai konversi resolusi {$label} untuk {$this->episode->slug}\n";
+        // Format untuk tiap resolusi
+        $formats = [
+            '360p'  => ['scale' => '640:360',  'bitrate' => 600],
+            '480p'  => ['scale' => '854:480',  'bitrate' => 1000],
+            '720p'  => ['scale' => '1280:720', 'bitrate' => 2500],
+            '1080p' => ['scale' => '1920:1080', 'bitrate' => 4500],
+        ];
 
-            $convertedPath = "{$basePath}/converted/{$epSlug}-{$label}.mp4";
+        $hls = FFMpeg::fromDisk('public')
+            ->open($originalPath)
+            ->exportForHLS()
+            ->toDisk('public');
 
-            if ($nvidiaAvailable) {
-                $format = new NvencFormat();
-                $format->setKiloBitrate($bitrates[$label]);
-            } else {
-                $format = new X264('aac', 'libx264');
-                $format->setKiloBitrate($bitrates[$label]);
-                $format->setAdditionalParameters(['-preset', 'ultrafast', '-crf', '28']);
-            }
+        foreach ($formats as $label => $config) {
+            $format = $nvidiaAvailable
+                ? (new NvencFormat())
+                : (new X264('aac', 'libx264'));
 
-            FFMpeg::fromDisk('public')
-                ->open($originalPath)
-                ->export()
-                ->toDisk('public')
-                ->inFormat($format)
-                ->resize($w, $h)
-                ->save($convertedPath);
+            $format->setKiloBitrate($config['bitrate']);
 
-            $videoSources[$label] = $convertedPath;
-
-            echo "Selesai {$label} untuk {$this->episode->slug}\n";
+            $hls->addFormat($format, function ($media) use ($config) {
+                $media->addFilter('scale=' . $config['scale']);
+            });
         }
 
+        // Simpan master playlist ke folder converted/master.m3u8
+        $hls->save("{$outputPath}/master.m3u8");
+
+        // Update ke DB
         $this->episode->update([
-            'video_sources' => $videoSources,
+            'video_url' => "{$outputPath}/master.m3u8",
         ]);
     }
 }
