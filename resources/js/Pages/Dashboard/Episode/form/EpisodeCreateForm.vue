@@ -2,6 +2,7 @@
 import InputError from "@/Components/InputError.vue";
 import Spinner from "@/Components/Spinner.vue";
 import { Button } from "@/Components/ui/button";
+import { Progress } from "@/Components/ui/progress";
 import {
     Dialog,
     DialogClose,
@@ -74,6 +75,8 @@ const submit = () => {
     }
 
     form.post(route("dashboard.episode.store", props.anime.slug), {
+        preserveScroll: true,
+        showProgress: false,
         onSuccess: () => {
             toast.success("Episode berhasil ditambahkan!", {
                 description: "Resolusi video akan diproses di latar belakang.",
@@ -238,11 +241,16 @@ const submit = () => {
             </form>
 
             <DialogFooter>
+                <Progress
+                    :model-value="form.progress"
+                    v-show="form.processing"
+                    class="bg-zinc-600 mt-3 [&>*]:bg-white"
+                />
                 <DialogClose>
                     <Button
                         :disabled="form.processing"
                         variant="ghost"
-                        class="mr-2 text-white hover:text-black"
+                        class="mr-2 text-white hover:text-black disabled:opacity-50 transition-all duration-200 ease-in-out"
                         >Batal</Button
                     >
                 </DialogClose>
