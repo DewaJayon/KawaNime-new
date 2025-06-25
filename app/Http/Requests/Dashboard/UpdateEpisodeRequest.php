@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Dashboard;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateEpisodeRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class UpdateEpisodeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check() && Auth::user()->role === 'admin';
     }
 
     /**
@@ -22,7 +23,10 @@ class UpdateEpisodeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title'          => 'required|string|max:255',
+            'episode_number' => 'required|integer',
+            'video_url'      => 'nullable',
+            'duration'       => 'required|integer',
         ];
     }
 }

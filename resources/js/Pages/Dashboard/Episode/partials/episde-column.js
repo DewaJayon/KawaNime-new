@@ -2,6 +2,7 @@ import { DataTableColumnHeader } from "@/Components/ui/data-table";
 import { h } from "vue";
 import EpisodeThumbnailRow from "./EpisodeThumbnailRow.vue";
 import EpisodeActionRow from "./EpisodeActionRow.vue";
+import ConversionStatusRow from "./ConversionStatusRow.vue";
 
 export const episodeColumn = [
     {
@@ -25,6 +26,11 @@ export const episodeColumn = [
                 title: "Durasi",
             }),
         cell: ({ row }) => row.original.duration + " Menit",
+    },
+    {
+        accessorKey: "conversion_status",
+        header: "Status Konversi",
+        cell: ({ row }) => h(ConversionStatusRow, { row: row.original }),
     },
     {
         accessorKey: "action",

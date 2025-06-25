@@ -8,8 +8,6 @@ use App\Http\Requests\Dashboard\StoreEpisodeRequest;
 use App\Http\Requests\Dashboard\UpdateEpisodeRequest;
 use App\Jobs\ProcessEpisodeVideo;
 use App\Models\Anime;
-use Cviebrock\EloquentSluggable\Services\SlugService;
-use Illuminate\Contracts\Cache\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -44,7 +42,7 @@ class EpisodeController extends Controller
      */
     public function create()
     {
-        //
+        return abort(404);
     }
 
     /**
@@ -69,7 +67,7 @@ class EpisodeController extends Controller
 
         $episode = Episode::create($data);
 
-        ProcessEpisodeVideo::dispatch($episode);
+        ProcessEpisodeVideo::dispatch($episode->id, now());
 
         return back()->with('success', 'Episode berhasil ditambahkan! Video sedang diproses di latar belakang.');
     }
@@ -80,7 +78,7 @@ class EpisodeController extends Controller
      */
     public function show(Episode $episode)
     {
-        //
+        return abort(404);
     }
 
     /**
@@ -88,8 +86,6 @@ class EpisodeController extends Controller
      */
     public function edit(Anime $anime, Episode $episode)
     {
-        // dd($episode->toArray(), $anime->only('id', 'title', 'slug'));
-
         return Inertia::render('Dashboard/Episode/Edit', [
             'episode' => $episode,
             'anime'   => $anime->only('id', 'title', 'slug'),
@@ -99,16 +95,63 @@ class EpisodeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEpisodeRequest $request, Episode $episode)
+    public function update(UpdateEpisodeRequest $request, Anime $anime, Episode $episode)
     {
-        //
+        $data = $request->validated();
+
+        if ($data['title'] !== $episode->title) {
+            $data['slug'] = Str::slug("{$anime->slug}-episode-{$data['episode_number']}");
+        }
+
+        $data['anime_id'] = $anime->id;
+
+        $episode->update($data);
+
+        return redirect()->route('dashboard.episode.index', $anime->slug)->with('success', 'Episode berhasil diupdate!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Episode $episode)
+    public function destroy(Anime $anime, Episode $episode)
     {
-        //
+        $episodePath = $episode->video_url;
+
+        if (Str::contains($episodePath, '/converted')) {
+            $episodeDirectory = Str::before($episodePath, '/converted');
+        } else {
+            $episodeDirectory = Str::beforeLast($episodePath, '/');
+        }
+
+        $mp4File = "{$episodeDirectory}/{$episode->slug}.mp4";
+        $thumbFile = "{$episodeDirectory}/thumbnail.jpg";
+
+        if (Storage::disk('public')->exists($mp4File)) {
+            Storage::disk('public')->delete($mp4File);
+        }
+
+        if (Storage::disk('public')->exists($thumbFile)) {
+            Storage::disk('public')->delete($thumbFile);
+        }
+
+        $convertedPath = "{$episodeDirectory}/converted";
+
+        if (Storage::disk('public')->exists($convertedPath)) {
+            Storage::disk('public')->deleteDirectory($convertedPath);
+        }
+
+        Storage::disk('public')->deleteDirectory($episodeDirectory);
+
+        $episode->delete();
+
+        return back()->with('success', 'Episode berhasil dihapus!');
+    }
+
+
+    public function getConversionStatus(Anime $anime, Episode $episode)
+    {
+        return response()->json([
+            'status' => $episode->conversion_status,
+        ]);
     }
 }
