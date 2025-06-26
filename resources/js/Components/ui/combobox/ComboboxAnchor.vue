@@ -1,9 +1,10 @@
 <script setup>
 import { reactiveOmit } from "@vueuse/core";
-import { ListboxContent, useForwardProps } from "reka-ui";
+import { ComboboxAnchor, useForwardProps } from "reka-ui";
 import { cn } from "@/lib/utils";
 
 const props = defineProps({
+  reference: { type: null, required: false },
   asChild: { type: Boolean, required: false },
   as: { type: [String, Object, Function], required: false },
   class: { type: null, required: false },
@@ -15,12 +16,7 @@ const forwarded = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <ListboxContent
-    v-bind="forwarded"
-    :class="cn('max-h-[300px] overflow-y-auto overflow-x-hidden', props.class)"
-  >
-    <div role="presentation">
-      <slot />
-    </div>
-  </ListboxContent>
+  <ComboboxAnchor v-bind="forwarded" :class="cn('w-[200px]', props.class)">
+    <slot />
+  </ComboboxAnchor>
 </template>

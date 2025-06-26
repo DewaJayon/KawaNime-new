@@ -4,6 +4,18 @@ import InputError from "@/Components/InputError.vue";
 import Spinner from "@/Components/Spinner.vue";
 import { Button } from "@/Components/ui/button";
 import { Switch } from "@/Components/ui/switch";
+import { Check, ChevronsUpDown, Search } from "lucide-vue-next";
+import { cn } from "@/lib/utils";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import { Textarea } from "@/Components/ui/textarea";
+import { Icon } from "@iconify/vue";
+import { useForm } from "@inertiajs/vue3";
+import { onBeforeMount, onUnmounted, ref, watch } from "vue";
+import axios from "axios";
+import { route } from "ziggy-js";
+import { debounce } from "lodash";
+
 import {
     Dialog,
     DialogClose,
@@ -14,16 +26,17 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/Components/ui/dialog";
-
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import { Textarea } from "@/Components/ui/textarea";
-import { Icon } from "@iconify/vue";
-import { useForm } from "@inertiajs/vue3";
-import { ref, watch } from "vue";
-import axios from "axios";
-import CustomCombobox from "@/Components/CustomCombobox.vue";
-import { route } from "ziggy-js";
+import {
+    Combobox,
+    ComboboxAnchor,
+    ComboboxEmpty,
+    ComboboxGroup,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxItemIndicator,
+    ComboboxList,
+    ComboboxTrigger,
+} from "@/Components/ui/combobox";
 
 const isDialogOpen = ref(false);
 
@@ -39,32 +52,52 @@ const submit = () => {
     alert(form.anime_id);
 };
 
-const animeOptions = ref([]);
 const selectedAnimeId = ref("");
 
 watch(selectedAnimeId, (val) => {
-    form.anime_id = val;
+    form.anime_id = val.id;
 });
 
-const searchTerm = ref("");
+const animes = ref([]);
+const searchInput = ref("");
 
-watch(searchTerm, async (term) => {
-    if (term.length < 2) return;
+const isLoading = ref(false);
 
-    try {
-        const res = await axios.get(route("dashboard.banner.search.anime"), {
-            params: { q: term },
-        });
+watch(
+    searchInput,
+    debounce(async (val) => {
+        isLoading.value = true;
 
-        animeOptions.value = res.data.map((item) => {
-            return {
-                id: item.id,
-                title: item.title,
-            };
-        });
-    } catch (e) {
-        console.error(e);
-    }
+        try {
+            const res = await axios.get(
+                route("dashboard.banner.search.anime", { q: val })
+            );
+
+            animes.value = res.data.map((anime) => {
+                return {
+                    value: anime.id,
+                    label: anime.title,
+                };
+            });
+        } catch (error) {
+            console.error(error);
+            isLoading.value = false;
+        } finally {
+            isLoading.value = false;
+        }
+    }, 500)
+);
+
+const stopPropagation = (event) => {
+    event.stopImmediatePropagation();
+};
+
+onBeforeMount(() => {
+    document.addEventListener("focusin", stopPropagation);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("focusin", stopPropagation);
 });
 </script>
 
@@ -123,15 +156,62 @@ watch(searchTerm, async (term) => {
 
                 <div class="md:col-span-2">
                     <Label for="anime_id" class="text-white pr-4">Anime</Label>
-                    <CustomCombobox
-                        v-model="selectedAnimeId"
-                        :items="animeOptions"
-                        id="anime_id"
-                        valueKey="id"
-                        labelKey="title"
-                        placeholder="Pilih Anime"
-                        v-model:searchTerm="searchTerm"
-                    />
+                    <Combobox v-model="selectedAnimeId" by="label">
+                        <ComboboxAnchor as-child>
+                            <ComboboxTrigger as-child>
+                                <Button
+                                    variant="outline"
+                                    class="justify-between w-full bg-transparent hover:bg-transparent border-slate-700 h-11 py-3 text-white"
+                                >
+                                    {{
+                                        selectedAnimeId?.label ?? "Pilih Anime"
+                                    }}
+
+                                    <ChevronsUpDown
+                                        class="ml-2 h-4 w-4 shrink-0 opacity-50"
+                                    />
+                                </Button>
+                            </ComboboxTrigger>
+                        </ComboboxAnchor>
+
+                        <ComboboxList class="bg-slate-800">
+                            <div class="relative w-full max-w-sm items-center">
+                                <ComboboxInput
+                                    v-model="searchInput"
+                                    class="pl-9 focus-visible:ring-0 border-0 border-b rounded-none h-10 bg-transparent focus-visible:ring-offset-0 focus-visible:ring-transparent text-white"
+                                    placeholder="Pilih Anime..."
+                                />
+                                <span
+                                    class="absolute start-0 inset-y-0 flex items-center justify-center px-3"
+                                >
+                                    <Search class="size-4 text-white" />
+                                </span>
+                            </div>
+
+                            <ComboboxEmpty
+                                class="flex items-center justify-center text-white"
+                            >
+                                <Spinner v-if="isLoading" />
+                                <template v-else>Tidak ada data</template>
+                            </ComboboxEmpty>
+
+                            <ComboboxGroup v-if="animes.length > 0">
+                                <ComboboxItem
+                                    v-for="anime in animes"
+                                    :key="anime.value"
+                                    :value="anime"
+                                    class="relative px-4 py-2 cursor-pointer select-none hover:bg-slate-700 text-white hover:text-black data-[highlighted]:text-black"
+                                >
+                                    {{ anime.label }}
+
+                                    <ComboboxItemIndicator>
+                                        <Check :class="cn('ml-auto h-4 w-4')" />
+                                    </ComboboxItemIndicator>
+                                </ComboboxItem>
+                            </ComboboxGroup>
+                        </ComboboxList>
+                    </Combobox>
+                    <InputError :message="form.errors.anime_id" />
                 </div>
 
                 <div class="md:col-span-2">
