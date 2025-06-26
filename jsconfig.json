@@ -3,8 +3,9 @@
         "baseUrl": ".",
         "paths": {
             "@/*": ["resources/js/*"],
-            "ziggy-js": ["./vendor/tightenco/ziggy"]
+            "ziggy-js": ["vendor/tightenco/ziggy/dist/vue.es.js"]
         }
     },
-    "exclude": ["node_modules", "public"]
+    "include": ["resources/js/**/*"],
+    "exclude": ["public", "vendor", "storage"]
 }

@@ -53,7 +53,7 @@ const form = useForm({
     description: props.row.description,
     type: props.row.type,
     status: props.row.status,
-    release_date: new Date(props.row.release_date),
+    release_date: new Date(props.row.release_date) || null,
     genre_ids: props.row.genres.map((genre) => genre.id),
 });
 
@@ -73,7 +73,6 @@ const isLoading = ref(false);
 
 const submit = () => {
     isLoading.value = true;
-    // Cek apakah user upload gambar baru
     if (!(form.thumbnail instanceof File)) {
         form.thumbnail = null;
     }
@@ -83,6 +82,9 @@ const submit = () => {
         {
             _method: "put",
             ...form,
+            release_date: form.release_date
+                ? form.release_date.toISOString()
+                : null,
         },
         {
             preserveScroll: true,

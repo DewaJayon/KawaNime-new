@@ -20,6 +20,8 @@ Route::get('/watch', [HomeController::class, 'watch'])->name('watch');
 Route::prefix('dashboard')->middleware(['auth', IsAdmin::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('banner', BannerController::class);
+    ROute::get('/banner/search/anime', [BannerController::class, 'searchAnime'])->name('dashboard.banner.search.anime');
+
     Route::resource('genre', GenreController::class)->except(['create', 'show', 'edit']);
 
     Route::resource('user', UserController::class)->except(['create', 'show', 'edit']);
