@@ -38,6 +38,7 @@
         "tailwind-scrollbar-hide": "^4.0.0",
         "tailwindcss-animate": "^1.0.7",
         "vue-plyr": "^7.0.0",
-        "vue-sonner": "^2.0.0"
+        "vue-sonner": "^2.0.0",
+        "ziggy-js": "^2.5.3"
     }
 }

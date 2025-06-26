@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Anime;
 use App\Models\Banner;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,6 +19,7 @@ class BannerController extends Controller
         $perPage    = $request->input('per_page', 10);
 
         $banners     =  Banner::query()
+            ->with('anime')
             ->when($request->search, function ($query, $search) {
                 return $query->where('headline', 'like', '%' . $search . '%')
                     ->orWhere('subheadline', 'like', '%' . $search . '%');
@@ -29,6 +31,13 @@ class BannerController extends Controller
         return Inertia::render('Dashboard/Banner/Index', [
             'banners'   => $banners
         ]);
+    }
+
+    public function searchAnime(Request $request)
+    {
+        $q = $request->input('q');
+
+        return Anime::where('title', 'like', '%' . $q . '%')->limit(5)->get();
     }
 
     /**

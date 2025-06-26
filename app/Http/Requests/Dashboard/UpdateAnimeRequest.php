@@ -48,7 +48,7 @@ class UpdateAnimeRequest extends FormRequest
     {
         if ($this->has('release_date')) {
             $this->merge([
-                'release_date' => Carbon::parse($this->release_date)->toDateString(),
+                'release_date' => Carbon::parse($this->release_date)->addDay()->toDateString(),
             ]);
         }
     }
