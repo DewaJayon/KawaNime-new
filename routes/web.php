@@ -19,7 +19,7 @@ Route::get('/watch', [HomeController::class, 'watch'])->name('watch');
 // Dashboard Routes
 Route::prefix('dashboard')->middleware(['auth', IsAdmin::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('banner', BannerController::class);
+    Route::resource('/banner', BannerController::class);
     ROute::get('/banner/search/anime', [BannerController::class, 'searchAnime'])->name('dashboard.banner.search.anime');
 
     Route::resource('genre', GenreController::class)->except(['create', 'show', 'edit']);

@@ -10,7 +10,7 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Textarea } from "@/Components/ui/textarea";
 import { Icon } from "@iconify/vue";
-import { useForm } from "@inertiajs/vue3";
+import { router, useForm } from "@inertiajs/vue3";
 import { onBeforeMount, onUnmounted, ref, watch } from "vue";
 import axios from "axios";
 import { route } from "ziggy-js";
@@ -38,38 +38,73 @@ import {
     ComboboxTrigger,
 } from "@/Components/ui/combobox";
 
+const props = defineProps({
+    row: {
+        type: Object,
+        required: true,
+    },
+});
+
 const isDialogOpen = ref(false);
+const isLoading = ref(false);
+const animes = ref(props.row.anime);
+const searchInput = ref("");
+const isSubmitting = ref(false);
+
+const image = ref(props.row.image);
 
 const form = useForm({
-    anime_id: "",
-    headline: "",
-    subheadline: "",
-    image: "",
-    is_active: true,
+    anime_id: props.row.anime.id,
+    headline: props.row.headline,
+    subheadline: props.row.subheadline,
+    image: image,
+    is_active: props.row.is_active == 1 ? true : false,
+});
+
+watch(image, (newValue) => {
+    form.reset("image");
+    form.image = newValue;
 });
 
 const submit = () => {
-    form.post(route("banner.store"), {
-        preserveScroll: true,
-        showProgress: false,
-        onSuccess: () => {
-            form.reset();
-            toast.success("Banner berhasil ditambahkan");
-            isDialogOpen.value = false;
+    isSubmitting.value = true;
+
+    if (!(form.image instanceof File)) {
+        form.image = null;
+    }
+
+    router.post(
+        route("banner.update", props.row.id),
+        {
+            _method: "put",
+            ...form,
         },
-    });
+        {
+            preserveScroll: true,
+            showProgress: false,
+            onSuccess: () => {
+                toast.success("Banner berhasil diubah");
+                isDialogOpen.value = false;
+                form.reset("image");
+            },
+            onError: (e) => {
+                toast.error(e);
+            },
+            onFinish: () => {
+                isSubmitting.value = false;
+            },
+        }
+    );
 };
 
-const selectedAnimeId = ref("");
+const selectedAnimeId = ref({
+    value: props.row.anime.id,
+    label: props.row.anime.title,
+});
 
 watch(selectedAnimeId, (anime) => {
     form.anime_id = anime.value;
 });
-
-const animes = ref([]);
-const searchInput = ref("");
-
-const isLoading = ref(false);
 
 watch(searchInput, (value) => {
     isLoading.value = true;
@@ -101,13 +136,16 @@ onUnmounted(() => {
 
 <template>
     <Dialog v-model:open="isDialogOpen">
-        <DialogTrigger>
+        <DialogTrigger as-child>
             <Button
-                variant="outline"
-                class="bg-transparent text-white hover:text-black transition-all duration-200 ease-in-out"
+                variant="ghost"
+                size="icon"
+                class="hover:bg-transparent whitespace-nowrap"
             >
-                Tambah Banner
-                <Icon icon="tabler:plus" width="20" height="20" />
+                <Icon
+                    icon="material-symbols:edit-outline-rounded"
+                    class="text-blue-500 text-lg"
+                />
             </Button>
         </DialogTrigger>
         <DialogContent
@@ -126,7 +164,7 @@ onUnmounted(() => {
             >
                 <div class="md:col-span-2">
                     <Label for="image" class="text-white">Banner (16:9)</Label>
-                    <DropzoneImage v-model="form.image" />
+                    <DropzoneImage v-model="image" />
                     <InputError :message="form.errors.image" />
                 </div>
 
@@ -153,7 +191,7 @@ onUnmounted(() => {
                     <InputError :message="form.errors.is_active" />
                 </div>
 
-                <div class="md:col-span-2">
+                <div class="md:col-span-2 relative w-full">
                     <Label for="anime_id" class="text-white pr-4">Anime</Label>
                     <Combobox v-model="selectedAnimeId" by="label">
                         <ComboboxAnchor as-child>
@@ -173,8 +211,8 @@ onUnmounted(() => {
                             </ComboboxTrigger>
                         </ComboboxAnchor>
 
-                        <ComboboxList class="bg-slate-800">
-                            <div class="relative w-full max-w-sm items-center">
+                        <ComboboxList class="!w-auto bg-slate-800 text-white">
+                            <div class="relative w-full items-center">
                                 <ComboboxInput
                                     v-model="searchInput"
                                     class="pl-9 focus-visible:ring-0 border-0 border-b rounded-none h-10 bg-transparent focus-visible:ring-offset-0 focus-visible:ring-transparent text-white"
@@ -235,13 +273,13 @@ onUnmounted(() => {
                     >
                 </DialogClose>
                 <Button
-                    :disabled="form.processing"
-                    class="disabled:opacity-50"
+                    :disabled="isSubmitting"
+                    class="disabled:opacity-50 bg-zinc-600"
                     type="submit"
                     form="form"
                 >
-                    <Spinner v-show="form.processing" />
-                    {{ form.processing ? "Menyimpan..." : "Simpan" }}
+                    <Spinner v-show="isSubmitting" />
+                    {{ isSubmitting ? "Menyimpan..." : "Simpan" }}
                 </Button>
             </DialogFooter>
         </DialogContent>
