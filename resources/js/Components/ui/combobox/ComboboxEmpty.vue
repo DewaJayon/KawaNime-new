@@ -1,9 +1,7 @@
 <script setup>
 import { reactiveOmit } from "@vueuse/core";
-import { Primitive } from "reka-ui";
-import { computed } from "vue";
+import { ComboboxEmpty } from "reka-ui";
 import { cn } from "@/lib/utils";
-import { useCommand } from ".";
 
 const props = defineProps({
   asChild: { type: Boolean, required: false },
@@ -12,19 +10,13 @@ const props = defineProps({
 });
 
 const delegatedProps = reactiveOmit(props, "class");
-
-const { filterState } = useCommand();
-const isRender = computed(
-  () => !!filterState.search && filterState.filtered.count === 0,
-);
 </script>
 
 <template>
-  <Primitive
-    v-if="isRender"
+  <ComboboxEmpty
     v-bind="delegatedProps"
     :class="cn('py-6 text-center text-sm', props.class)"
   >
     <slot />
-  </Primitive>
+  </ComboboxEmpty>
 </template>

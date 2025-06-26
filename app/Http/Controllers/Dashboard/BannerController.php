@@ -33,11 +33,23 @@ class BannerController extends Controller
         ]);
     }
 
+    /**
+     * Search anime by title.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function searchAnime(Request $request)
     {
         $q = $request->input('q');
 
-        return Anime::where('title', 'like', '%' . $q . '%')->limit(5)->get();
+        if (empty($q)) {
+            return response()->json([]);
+        }
+
+        $search = Anime::where('title', 'like', '%' . $q . '%')->limit(5)->get();
+
+        return response()->json($search);
     }
 
     /**
