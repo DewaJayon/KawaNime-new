@@ -10,12 +10,10 @@ const props = defineProps({
 </script>
 
 <template>
-    <div
-        class="flex items-center justify-center w-full h-full max-w-[200px] mx-auto"
-    >
+    <div class="flex items-center justify-center w-full h-full mx-auto">
         <AspectRatio :ratio="16 / 9">
             <img
-                src="https://dummyimage.com/16:9x1080"
+                :src="`/${row.image}`"
                 alt="Image"
                 class="rounded-md object-cover w-full h-full"
             />

@@ -10,14 +10,12 @@ import {
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogCancel,
-    AlertDialogAction,
 } from "@/Components/ui/alert-dialog";
 import Spinner from "@/Components/Spinner.vue";
 import { Icon } from "@iconify/vue";
 import { ref } from "vue";
 import { router } from "@inertiajs/vue3";
 import { toast } from "vue-sonner";
-import { Loader2 } from "lucide-vue-next";
 
 const props = defineProps({
     row: {

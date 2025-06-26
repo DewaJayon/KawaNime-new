@@ -29,6 +29,12 @@ export const TableColumn = [
                 column: column,
                 title: "Sub Judul",
             }),
+        cell: ({ row }) =>
+            h(
+                "p",
+                { class: "line-clamp-2 max-w-[100px]" },
+                row.original.subheadline
+            ),
     },
     {
         accessorKey: "is_active",
