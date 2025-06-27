@@ -6,6 +6,16 @@ import { Button } from "@/Components/ui/button";
 import { Icon } from "@iconify/vue";
 import { Card, CardContent } from "@/Components/ui/card";
 import HomeLayout from "@/Layouts/HomeLayout.vue";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import "dayjs/locale/id";
+
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.locale("id");
 
 const scrollRef = ref(null);
 
@@ -15,6 +25,10 @@ const props = defineProps({
         required: true,
     },
 });
+
+const episodeCreatedAt = (episode) => {
+    return dayjs.utc(episode.created_at).tz("Asia/Shanghai").fromNow();
+};
 
 function scrollLeft() {
     scrollRef.value.scrollBy({ left: -300, behavior: "smooth" });
@@ -69,24 +83,29 @@ function scrollRight() {
                     :href="route('watch', episode.slug)"
                 >
                     <Card
-                        class="flex-none w-40 md:w-48 bg-black rounded-lg overflow-hidden hover:scale-105 transition-transform duration-300 cursor-pointer border-accent"
+                        class="group cursor-pointer bg-transparent border-none"
                     >
-                        <CardContent class="p-0">
+                        <CardContent
+                            class="relative overflow-hidden rounded-lg bg-gray-900 transition-transform group-hover:scale-105 p-0"
+                        >
                             <img
                                 :src="`/${episode.anime.thumbnail}`"
-                                alt=""
-                                class="w-full h-60 object-cover"
+                                :alt="episode.title"
+                                class="w-full h-64 object-cover"
                             />
-                            <div class="p-2">
-                                <h3
-                                    class="text-sm font-semibold text-white truncate"
-                                >
-                                    {{ episode.title }}
-                                </h3>
-                            </div>
                         </CardContent>
-                    </Card></Link
-                >
+                        <div class="mt-3">
+                            <h3
+                                class="text-sm font-medium text-white line-clamp-2 group-hover:text-accent transition-colors capitalize"
+                            >
+                                {{ episode.title }}
+                            </h3>
+                            <p class="text-xs text-gray-400 mt-1 capitalize">
+                                {{ episodeCreatedAt(episode) }}
+                            </p>
+                        </div>
+                    </Card>
+                </Link>
             </div>
         </div>
     </HomeLayout>

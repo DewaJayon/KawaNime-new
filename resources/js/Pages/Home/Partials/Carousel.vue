@@ -95,16 +95,25 @@ onUnmounted(() => {
                             Play EP 1
                         </Button>
                     </Link>
-                    <Button
-                        class="bg-gray-600 text-white px-8 py-3 rounded font-semibold hover:bg-opacity-50 transition-colors flex items-center"
+                    <Link
+                        :href="
+                            route(
+                                'anime-detail',
+                                heroMovies[currentSlide].anime.slug
+                            )
+                        "
                     >
-                        <Icon
-                            icon="clarity:info-solid"
-                            width="30"
-                            height="30"
-                        />
-                        More Info
-                    </Button>
+                        <Button
+                            class="bg-gray-600 text-white px-8 py-3 rounded font-semibold hover:bg-opacity-50 transition-colors flex items-center"
+                        >
+                            <Icon
+                                icon="clarity:info-solid"
+                                width="30"
+                                height="30"
+                            />
+                            Detail
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </div>

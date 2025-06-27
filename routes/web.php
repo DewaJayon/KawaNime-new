@@ -7,6 +7,7 @@ use App\Http\Controllers\Dashboard\EpisodeController;
 use App\Http\Controllers\Dashboard\GenreController;
 use App\Http\Controllers\Dashboard\UserController;
 use App\Http\Controllers\Home\HomeController;
+use App\Http\Controllers\Home\SearchController;
 use App\Http\Controllers\Home\WatchController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\IsAdmin;
@@ -14,9 +15,10 @@ use Illuminate\Support\Facades\Route;
 
 // Home Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/{anime}', [HomeController::class, 'show'])->name('anime-detail');
+Route::get('/anime/{anime}', [HomeController::class, 'show'])->name('anime-detail');
 Route::get('/anime-list', [HomeController::class, 'animeList'])->name('anime-list');
 Route::get('/watch/{episode}', [WatchController::class, 'show'])->name('watch');
+Route::get('/search', [SearchController::class, 'index'])->name('anime.search');
 
 // Dashboard Routes
 Route::prefix('dashboard')->middleware(['auth', IsAdmin::class])->group(function () {

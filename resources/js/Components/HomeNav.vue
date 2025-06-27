@@ -1,5 +1,5 @@
 <script setup>
-import { Link, router, usePage } from "@inertiajs/vue3";
+import { Link, usePage } from "@inertiajs/vue3";
 import { Icon } from "@iconify/vue";
 import Input from "@/Components/ui/input/Input.vue";
 import { Button } from "@/Components/ui/button";
@@ -15,6 +15,7 @@ import {
     DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
 import Spinner from "./Spinner.vue";
+import axios from "axios";
 
 const inSearchOpen = ref(false);
 const searchContainer = ref(null);
@@ -33,21 +34,16 @@ watch(searchQuery, (newSearchQuery) => {
     clearTimeout(timeout);
 
     timeout = setTimeout(() => {
-        router.get(
-            route("home", { q: newSearchQuery }),
-            {},
-            {
-                preserveState: true,
-                replace: true,
-                preserveScroll: true,
-                showProgress: false,
-                only: ["animes"],
-                onSuccess: () => {
-                    animeList.value = page.props.animes;
-                    isLoadingSearch.value = false;
-                },
-            }
-        );
+        axios
+            .get(route("anime.search"), {
+                params: { q: newSearchQuery },
+            })
+            .then((response) => {
+                animeList.value = response.data.animes;
+            })
+            .finally(() => {
+                isLoadingSearch.value = false;
+            });
     }, 300);
 });
 
@@ -185,7 +181,7 @@ if (user.value) {
                                 class="flex items-center p-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0"
                             >
                                 <img
-                                    :src="anime.thumbnail"
+                                    :src="`/${anime.thumbnail}`"
                                     :alt="anime.title"
                                     class="w-12 h-16 object-cover rounded mr-3"
                                 />
