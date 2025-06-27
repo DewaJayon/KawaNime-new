@@ -28,6 +28,7 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "date-fns": "^4.1.0",
+        "dayjs": "^1.11.13",
         "embla-carousel-vue": "^8.6.0",
         "hls.js": "^1.6.5",
         "lodash": "^4.17.21",

@@ -2,36 +2,15 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { Icon } from "@iconify/vue";
 import { Button } from "@/Components/ui/button";
+import { Link, usePage } from "@inertiajs/vue3";
 
-// Hero slider data
-const heroMovies = ref([
-    {
-        id: 1,
-        title: "Attack on Titan: Final Season",
-        description:
-            "The epic conclusion to the battle between humanity and the Titans.",
-        image: "https://fastly.picsum.photos/id/287/1920/1080.jpg?hmac=ZhvfrQi8rTXr94jwP2QdDnbt6XA1bOb8YooouDMZHfE",
-    },
-    {
-        id: 2,
-        title: "Demon Slayer: Entertainment District Arc",
-        description:
-            "Tanjirou and his comrades face new demons in the flashy Entertainm ent District.",
-        image: "https://picsum.photos/1920/1080",
-    },
-    {
-        id: 3,
-        title: "Jujutsu Kaisen: Shibuya Incident",
-        description:
-            "Yuji and the sorcerers confront the cursed spirits in Shibuya.",
-        image: "https://fastly.picsum.photos/id/464/1920/1080.jpg?hmac=K1sBJDxf9qC0m7L6zRvi8jWlH_q4zjcAouBYQQUNQdE",
-    },
-]);
+const page = usePage();
+
+const heroMovies = ref(page.props.banners);
 
 const currentSlide = ref(0);
 let intervalId = null;
 
-// Auto slide change
 const startSlider = () => {
     intervalId = setInterval(() => {
         nextSlide();
@@ -59,7 +38,6 @@ const goToSlide = (index) => {
     currentSlide.value = index;
 };
 
-// Lifecycle hooks
 onMounted(() => {
     startSlider();
 });
@@ -71,7 +49,6 @@ onUnmounted(() => {
 
 <template>
     <div class="relative h-screen overflow-hidden">
-        <!-- Slides -->
         <div
             class="absolute inset-0 transition-all duration-1000 ease-in-out"
             :style="{
@@ -89,26 +66,35 @@ onUnmounted(() => {
             ></div>
         </div>
 
-        <!-- Content -->
         <div class="relative z-10 flex items-center h-full px-4 md:px-12">
             <div class="max-w-lg">
                 <h1 class="text-4xl md:text-6xl font-bold mb-4">
-                    {{ heroMovies[currentSlide].title }}
+                    {{ heroMovies[currentSlide].headline }}
                 </h1>
-                <p class="text-lg md:text-xl mb-8 text-gray-200">
-                    {{ heroMovies[currentSlide].description }}
+                <p class="text-lg md:text-xl mb-8 text-gray-200 line-clamp-3">
+                    {{ heroMovies[currentSlide].subheadline }}
                 </p>
                 <div class="flex space-x-4">
-                    <Button
-                        class="bg-accent text-black px-8 py-3 rounded font-semibold hover:bg-opacity-50 transition-colors flex items-center"
+                    <Link
+                        v-if="heroMovies[currentSlide].anime.episodes[0]"
+                        :href="
+                            route(
+                                'watch',
+                                heroMovies[currentSlide].anime.episodes[0].slug
+                            )
+                        "
                     >
-                        <Icon
-                            icon="gravity-ui:play-fill"
-                            width="16"
-                            height="16"
-                        />
-                        Play
-                    </Button>
+                        <Button
+                            class="bg-accent text-black px-8 py-3 rounded font-semibold hover:bg-opacity-50 transition-colors flex items-center"
+                        >
+                            <Icon
+                                icon="gravity-ui:play-fill"
+                                width="16"
+                                height="16"
+                            />
+                            Play EP 1
+                        </Button>
+                    </Link>
                     <Button
                         class="bg-gray-600 text-white px-8 py-3 rounded font-semibold hover:bg-opacity-50 transition-colors flex items-center"
                     >
@@ -123,7 +109,6 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <!-- Navigation Arrows -->
         <Button
             @click="prevSlide"
             class="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70 transition-colors"
@@ -151,7 +136,6 @@ onUnmounted(() => {
             />
         </Button>
 
-        <!-- Navigation Dots -->
         <div
             class="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20"
         >

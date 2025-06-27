@@ -1,9 +1,9 @@
 <script setup>
-import { Link, usePage } from "@inertiajs/vue3";
+import { Link, router, usePage } from "@inertiajs/vue3";
 import { Icon } from "@iconify/vue";
 import Input from "@/Components/ui/input/Input.vue";
 import { Button } from "@/Components/ui/button";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { onClickOutside } from "@vueuse/core";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import {
@@ -14,50 +14,48 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
+import Spinner from "./Spinner.vue";
 
-// State
 const inSearchOpen = ref(false);
 const searchContainer = ref(null);
 const searchQuery = ref("");
 const isDropdownOpen = ref(false);
+const page = usePage();
+const user = computed(() => page.props.auth.user ?? null);
 
-// Dummy data anime
-const animeList = ref([
-    {
-        id: 1,
-        title: "Attack on Titan",
-        category: "Action, Drama",
-        image: "https://dummyimage.com/300x400/09f/fff.png",
-    },
-    {
-        id: 2,
-        title: "Demon Slayer",
-        category: "Action, Fantasy",
-        image: "https://dummyimage.com/300x400/09f/fff.png",
-    },
-    {
-        id: 3,
-        title: "Jujutsu Kaisen",
-        category: "Action, Supernatural",
-        image: "https://dummyimage.com/300x400/09f/fff.png",
-    },
-    {
-        id: 4,
-        title: "Spy x Family",
-        category: "Comedy, Action",
-        image: "https://dummyimage.com/300x400/09f/fff.png",
-    },
-]);
+const animeList = ref([]);
 
-// Filter anime based on search query
-const filteredAnime = computed(() => {
-    if (!searchQuery.value) return [];
-    return animeList.value.filter((anime) =>
-        anime.title.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
+let timeout;
+const isLoadingSearch = ref(false);
+
+watch(searchQuery, (newSearchQuery) => {
+    isLoadingSearch.value = true;
+    clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+        router.get(
+            route("home", { q: newSearchQuery }),
+            {},
+            {
+                preserveState: true,
+                replace: true,
+                preserveScroll: true,
+                showProgress: false,
+                only: ["animes"],
+                onSuccess: () => {
+                    animeList.value = page.props.animes;
+                    isLoadingSearch.value = false;
+                },
+            }
+        );
+    }, 300);
 });
 
-// Methods
+const filteredAnime = computed(() => {
+    if (!searchQuery.value || !animeList.value) return [];
+    return animeList.value;
+});
+
 const toggleSearch = () => {
     inSearchOpen.value = !inSearchOpen.value;
     if (inSearchOpen.value) {
@@ -71,16 +69,11 @@ const handleInput = () => {
     isDropdownOpen.value = searchQuery.value.length > 0;
 };
 
-// Auto close when clicking outside
 onClickOutside(searchContainer, () => {
     inSearchOpen.value = false;
     isDropdownOpen.value = false;
 });
 
-const page = usePage();
-const user = computed(() => page.props.auth.user ?? null);
-
-// Fungsi menghasilkan warna tailwind berdasarkan nama
 function getColorFromName(name) {
     const colors = [
         "bg-red-500",
@@ -122,9 +115,11 @@ if (user.value) {
     >
         <nav class="flex items-center justify-between px-4 md:px-12 py-4">
             <div class="flex items-center space-x-8">
-                <h1 class="text-2xl font-bold">
-                    Kawa<span class="text-accent">Nime</span>
-                </h1>
+                <Link :href="route('home')">
+                    <h1 class="text-2xl font-bold">
+                        Kawa<span class="text-accent">Nime</span>
+                    </h1>
+                </Link>
                 <div class="hidden md:flex space-x-6">
                     <Link
                         href="/"
@@ -177,38 +172,49 @@ if (user.value) {
                         </Button>
                     </div>
 
-                    <!-- Dropdown Results -->
                     <div
                         v-if="isDropdownOpen && filteredAnime.length > 0"
                         class="absolute top-full left-0 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto"
                     >
-                        <div
+                        <Link
                             v-for="anime in filteredAnime"
                             :key="anime.id"
-                            class="flex items-center p-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0"
+                            :href="route('anime-detail', anime.slug)"
                         >
-                            <img
-                                :src="anime.image"
-                                :alt="anime.title"
-                                class="w-12 h-16 object-cover rounded mr-3"
-                            />
-                            <div class="flex-1">
-                                <h4 class="text-white font-medium text-sm">
-                                    {{ anime.title }}
-                                </h4>
-                                <p class="text-gray-400 text-xs">
-                                    {{ anime.category }}
-                                </p>
+                            <div
+                                class="flex items-center p-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0"
+                            >
+                                <img
+                                    :src="anime.thumbnail"
+                                    :alt="anime.title"
+                                    class="w-12 h-16 object-cover rounded mr-3"
+                                />
+                                <div class="flex-1">
+                                    <h4 class="text-white font-medium text-sm">
+                                        {{ anime.title }}
+                                    </h4>
+                                    <p class="text-gray-400 text-xs">
+                                        {{
+                                            anime.genres
+                                                .map((g) => g.name)
+                                                .join(", ")
+                                        }}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        </Link>
                     </div>
 
-                    <!-- Empty State -->
                     <div
                         v-if="isDropdownOpen && filteredAnime.length === 0"
                         class="absolute top-full left-0 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-md shadow-lg z-50 p-4 text-center"
                     >
-                        <p class="text-gray-400 text-sm">
+                        <Spinner
+                            v-if="isLoadingSearch"
+                            v-show="isLoadingSearch"
+                            class="mx-auto"
+                        />
+                        <p v-else class="text-gray-400 text-sm">
                             Tidak ada hasil untuk "{{ searchQuery }}"
                         </p>
                     </div>

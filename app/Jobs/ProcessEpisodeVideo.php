@@ -54,7 +54,7 @@ class ProcessEpisodeVideo implements ShouldQueue
         try {
             FFMpeg::fromDisk('public')
                 ->open($originalPath)
-                ->getFrameFromSeconds(5)
+                ->getFrameFromSeconds(60)
                 ->export()
                 ->toDisk('public')
                 ->save($thumbPath);
