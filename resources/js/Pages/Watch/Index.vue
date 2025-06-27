@@ -134,7 +134,7 @@ onMounted(() => {
                             {{ episode.title }}
                         </h1>
                         <div class="flex items-center justify-between mb-4">
-                            <div class="text-gray-400 text-sm">
+                            <div class="text-gray-400 text-sm capitalize">
                                 {{ dateCreated }}
                             </div>
                             <div class="flex items-center space-x-4">
