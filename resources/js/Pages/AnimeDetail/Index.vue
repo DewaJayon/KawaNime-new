@@ -106,7 +106,7 @@ const firstEpisodeSlug = computed(() => {
                                 >Durasi Per Episode</span
                             >
                             <p class="capitalize">
-                                {{ props.episodes.length ?? "-" }}
+                                {{ props.episodes[0]?.duration ?? "-" }}
                             </p>
                         </div>
                         <div>
