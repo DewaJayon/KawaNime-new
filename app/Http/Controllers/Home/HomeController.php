@@ -53,9 +53,4 @@ class HomeController extends Controller
             'episodes' => $episodes
         ]);
     }
-
-    public function animeList()
-    {
-        return Inertia::render('AnimeList/Index');
-    }
 }
