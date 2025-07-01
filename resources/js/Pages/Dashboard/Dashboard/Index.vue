@@ -2,6 +2,14 @@
 import { Head } from "@inertiajs/vue3";
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 import { Icon } from "@iconify/vue";
+import DatabaseBackup from "./DatabaseBackup.vue";
+
+const props = defineProps({
+    sumAnime: {
+        type: Number,
+        required: true,
+    },
+});
 </script>
 
 <template>
@@ -22,7 +30,9 @@ import { Icon } from "@iconify/vue";
                         <p class="text-sm font-medium text-gray-400">
                             Total Anime
                         </p>
-                        <p class="text-2xl font-semibold text-white">100</p>
+                        <p class="text-2xl font-semibold text-white">
+                            {{ props.sumAnime }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -79,6 +89,15 @@ import { Icon } from "@iconify/vue";
                         <p class="text-2xl font-semibold text-white">100</p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <DatabaseBackup />
+
+            <div class="bg-gray-800 rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-6 text-gray-200">Chart</h2>
+                Chart
             </div>
         </div>
     </DashboardLayout>

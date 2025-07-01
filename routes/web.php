@@ -3,6 +3,7 @@
 use App\Http\Controllers\Dashboard\AnimeController;
 use App\Http\Controllers\Dashboard\BannerController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\DatabaseBackupController;
 use App\Http\Controllers\Dashboard\EpisodeController;
 use App\Http\Controllers\Dashboard\GenreController;
 use App\Http\Controllers\Dashboard\UserController;
@@ -40,6 +41,11 @@ Route::prefix('dashboard')->middleware(['auth', IsAdmin::class])->group(function
 
     Route::resource('anime.episode', EpisodeController::class)->names('dashboard.episode')->except(['show']);
     Route::get('/anime/{anime}/episode/{episode}/convert', [EpisodeController::class, 'getConversionStatus'])->name('dashboard.episode.convert');
+
+    Route::get('/backup-database', [DatabaseBackupController::class, 'index'])->name('dashboard.backup-database');
+    Route::post('/backup-database', [DatabaseBackupController::class, 'store'])->name('dashboard.create-backup-database');
+    Route::delete('/backup-database/{file}', [DatabaseBackupController::class, 'destroy'])->name('dashboard.delete-backup-database');
+    Route::get('/backup-database/download/{file}', [DatabaseBackupController::class, 'download'])->name('dashboard.download-backup-database');
 });
 
 Route::middleware('auth')->group(function () {
