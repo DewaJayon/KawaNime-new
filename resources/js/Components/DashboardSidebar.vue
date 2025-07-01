@@ -133,6 +133,16 @@ const generalItems = [
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton asChild>
+                                <a :href="route('pulse')" target="_blank">
+                                    <Icon
+                                        icon="eos-icons:monitoring"
+                                        width="24"
+                                        height="24"
+                                    />
+                                    Monitoring Server
+                                </a>
+                            </SidebarMenuButton>
+                            <SidebarMenuButton asChild>
                                 <a :href="route('home')" target="_blank">
                                     <Icon
                                         icon="streamline-plump:web"
