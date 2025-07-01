@@ -14,6 +14,7 @@ use App\Http\Controllers\Home\WatchController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Number;
 
 // Home Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');

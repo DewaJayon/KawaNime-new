@@ -48,7 +48,7 @@ const props = defineProps({
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-400">
-                            Total Anime
+                            CPU Usage
                         </p>
                         <p class="text-2xl font-semibold text-white">100</p>
                     </div>
