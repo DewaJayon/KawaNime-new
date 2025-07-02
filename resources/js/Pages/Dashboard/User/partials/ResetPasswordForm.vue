@@ -43,6 +43,11 @@ const showPassword = () => {
 const isDialogOpen = ref(false);
 
 const submit = (id) => {
+    if (props.row.provider === "google") {
+        toast.error("Tidak dapat mereset password untuk akun Google");
+        return;
+    }
+
     form.patch(route("dashboard.user.reset-password", id), {
         preserveScroll: true,
         onSuccess: () => {
@@ -72,9 +77,9 @@ const submit = (id) => {
                 @submit.prevent="submit(row.id)"
             >
                 <div class="relative">
-                    <Label for="password" class="text-right text-white"
-                        >Password</Label
-                    >
+                    <Label for="password" class="text-right text-white">
+                        Password
+                    </Label>
                     <div class="relative">
                         <Input
                             type="password"
@@ -103,8 +108,9 @@ const submit = (id) => {
                     <Button
                         variant="ghost"
                         class="mr-2 text-white hover:text-black transition-all duration-200 ease-in-out"
-                        >Batal</Button
                     >
+                        Batal
+                    </Button>
                 </DialogClose>
                 <Button
                     :disabled="form.processing"

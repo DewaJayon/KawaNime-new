@@ -137,12 +137,6 @@ if (user.value) {
                     >
                         Anime List
                     </Link>
-                    <Link
-                        href="/"
-                        class="capitalize hover:text-accent transition-all duration-500 ease-in-out"
-                    >
-                        Genres
-                    </Link>
                 </div>
             </div>
             <div class="flex items-center space-x-4">

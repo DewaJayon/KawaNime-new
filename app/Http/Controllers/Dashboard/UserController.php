@@ -99,6 +99,10 @@ class UserController extends Controller
      */
     public function resetPassword(Request $request, User $user)
     {
+        if ($user->provider == 'google') {
+            return back()->with('error', 'Tidak dapat mereset password untuk user Google.');
+        }
+
         $request->validate([
             'password' => 'required|string|min:8',
         ]);

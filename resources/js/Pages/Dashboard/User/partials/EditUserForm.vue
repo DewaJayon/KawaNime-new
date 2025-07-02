@@ -151,9 +151,9 @@ const edit = (id) => {
                     </div>
                 </form>
                 <DialogFooter class="flex sm:justify-between items-center">
-                    <div>
+                    <template v-if="row.provider === 'web'">
                         <ResetPasswordForm :row="row" />
-                    </div>
+                    </template>
                     <div class="flex items-center space-x-2">
                         <DialogClose>
                             <Button
