@@ -39,9 +39,7 @@ const backupDatabase = () => {
             axios.get(route("dashboard.backup-database")).then((res) => {
                 databaseBackups.value = res.data.data;
             });
-            toast.success("Database berhasil dibackup", {
-                description: res.data?.data ?? "Backup selesai!",
-            });
+            toast.success("Database berhasil dibackup");
         })
         .catch((error) => {
             console.log(error);
@@ -89,6 +87,7 @@ onMounted(() => {
                 Backup Database
             </h2>
             <Button
+                :disabled="isBackuping"
                 @click="backupDatabase"
                 variant="outline"
                 class="bg-transparent border-accent text-accent hover:bg-slate-500/50 transition-all duration-500 ease-in-out"

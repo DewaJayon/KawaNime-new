@@ -27,6 +27,7 @@
         "@unovis/ts": "^1.5.2",
         "@unovis/vue": "^1.5.2",
         "@vueuse/core": "^13.4.0",
+        "apexcharts": "^4.7.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "date-fns": "^4.1.0",
@@ -43,6 +44,7 @@
         "vaul-vue": "^0.4.1",
         "vue-plyr": "^7.0.0",
         "vue-sonner": "^2.0.0",
+        "vue3-apexcharts": "^1.8.0",
         "ziggy-js": "^2.5.3"
     }
 }
