@@ -110,26 +110,46 @@ class AnimeController extends Controller
 
             $data['thumbnail'] = 'storage/' . $fullPath;
         } else {
-            // Tidak ada file baru, tapi cek apakah slug berubah
+
             if ($slugChanged && $anime->thumbnail) {
-                // Pindahkan thumbnail lama ke folder slug baru
-                $oldPath = str_replace('storage/', '', $anime->thumbnail);
-                $oldFilename = basename($oldPath);
-                $newPath = "anime/{$slug}/{$oldFilename}";
+                $oldSlug = $anime->slug;
+                $newSlug = $slug;
 
-                // Buat folder baru kalau belum ada
-                Storage::disk('public')->makeDirectory("anime/{$slug}");
+                $oldPath = "anime/{$oldSlug}";
+                $newPath = "anime/{$newSlug}";
 
-                // Pindah file thumbnail lama
-                Storage::disk('public')->move($oldPath, $newPath);
+                Storage::disk('public')->makeDirectory($newPath);
 
-                $data['thumbnail'] = 'storage/' . $newPath;
+                $files = Storage::disk('public')->allFiles($oldPath);
 
-                // Opsional: hapus direktori lama jika kosong
-                $oldDir = dirname($oldPath);
-                if (empty(Storage::disk('public')->files($oldDir))) {
-                    Storage::disk('public')->deleteDirectory($oldDir);
+                foreach ($files as $file) {
+                    $newFilePath = str_replace($oldPath, $newPath, $file);
+                    Storage::disk('public')->copy($file, $newFilePath);
                 }
+
+                Storage::disk('public')->deleteDirectory($oldPath);
+
+                if ($anime->banners()->count() > 0) {
+                    $banners = $anime->banners()->get();
+                    foreach ($banners as $banner) {
+                        $banner->update([
+                            'image' => "storage/{$newPath}/banners/" . basename($banner->image),
+                        ]);
+                    }
+                }
+
+                if ($anime->episodes()->count() > 0) {
+                    $episodes = $anime->episodes()->get();
+                    foreach ($episodes as $episode) {
+                        $episode->update([
+                            'video_url' => "anime/{$newSlug}/episode/{$episode->slug}/converted/" . basename($episode->video_url),
+                            'thumbnail_url' => "anime/{$newSlug}/episode/{$episode->slug}/" . basename($episode->thumbnail_url),
+                        ]);
+                    }
+                }
+
+                $thumbnailFilename = basename($anime->thumbnail);
+                $data['thumbnail'] = 'storage/' . $newPath . '/' . $thumbnailFilename;
             } else {
                 $data['thumbnail'] = $anime->thumbnail;
             }

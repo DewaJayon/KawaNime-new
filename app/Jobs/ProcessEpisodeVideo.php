@@ -52,9 +52,12 @@ class ProcessEpisodeVideo implements ShouldQueue
         $episode->update(['conversion_status' => 'processing']);
 
         try {
-            FFMpeg::fromDisk('public')
-                ->open($originalPath)
-                ->getFrameFromSeconds(60)
+            $media = FFMpeg::fromDisk('public')->open($originalPath);
+            $duration = $media->getDurationInSeconds();
+
+            $seekTo = (int) floor($duration / 2);
+
+            $media->getFrameFromSeconds($seekTo)
                 ->export()
                 ->toDisk('public')
                 ->save($thumbPath);
