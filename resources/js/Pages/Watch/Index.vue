@@ -31,14 +31,6 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.locale("id");
 
-let recomendationCreated;
-if (props.nextEpisode) {
-    recomendationCreated = dayjs
-        .utc(props.recomendations.created_at)
-        .tz("Asia/Shanghai")
-        .fromNow();
-}
-
 let nextEpisodeCreated;
 if (props.nextEpisode) {
     nextEpisodeCreated = dayjs
@@ -46,6 +38,10 @@ if (props.nextEpisode) {
         .tz("Asia/Shanghai")
         .fromNow();
 }
+
+const episodeCreatedAt = (episode) => {
+    return dayjs.utc(episode.created_at).tz("Asia/Shanghai").fromNow();
+};
 
 const dateCreated = dayjs
     .utc(props.episode.created_at)
@@ -220,30 +216,49 @@ onMounted(() => {
                             </div>
                         </Link>
 
-                        <div
+                        <template
                             v-for="recomendation in recomendations"
                             :key="recomendation.id"
-                            class="flex space-x-3 cursor-pointer hover:bg-gray-900 p-2 rounded-lg transition-colors"
                         >
-                            <div class="relative flex-shrink-0">
-                                <img
-                                    loading="lazy"
-                                    :src="`/storage/${recomendation.thumbnail_url}`"
-                                    :alt="recomendation.title"
-                                    class="w-40 h-24 object-cover rounded-lg"
-                                />
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <h4
-                                    class="font-medium text-sm line-clamp-2 mb-1"
+                            <Link
+                                v-for="episode in recomendation.episodes"
+                                :href="`/watch/${episode.slug}`"
+                            >
+                                <div
+                                    class="flex space-x-3 cursor-pointer hover:bg-gray-900 p-2 rounded-lg transition-colors"
                                 >
-                                    {{ recomendation.title }}
-                                </h4>
-                                <p class="text-gray-400 text-xs">
-                                    {{ recomendationCreated }}
-                                </p>
-                            </div>
-                        </div>
+                                    <div class="relative flex-shrink-0">
+                                        <img
+                                            loading="lazy"
+                                            :src="`/storage/${episode.thumbnail_url}`"
+                                            :alt="episode.title"
+                                            class="w-40 h-24 object-cover rounded-lg"
+                                        />
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4
+                                            class="font-medium text-sm line-clamp-2 mb-1"
+                                        >
+                                            {{ episode.title }}
+                                        </h4>
+                                        <p
+                                            class="text-gray-400 text-xs capitalize"
+                                        >
+                                            {{
+                                                recomendation.genres
+                                                    .map((g) => g.name)
+                                                    .join(", ")
+                                            }}
+                                        </p>
+                                        <p
+                                            class="text-gray-400 text-xs capitalize"
+                                        >
+                                            {{ episodeCreatedAt(episode) }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </Link>
+                        </template>
                     </div>
                 </div>
             </div>
