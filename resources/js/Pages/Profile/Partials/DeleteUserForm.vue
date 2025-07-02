@@ -1,104 +1,93 @@
 <script setup>
-import DangerButton from "@/Components/DangerButton.vue";
-import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import Modal from "@/Components/Modal.vue";
-import SecondaryButton from "@/Components/SecondaryButton.vue";
-import TextInput from "@/Components/TextInput.vue";
+import { Icon } from "@iconify/vue";
+import { Button } from "@/Components/ui/button";
 import { useForm } from "@inertiajs/vue3";
-import { nextTick, ref } from "vue";
+import { ref } from "vue";
+import {
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogCancel,
+} from "@/Components/ui/alert-dialog";
+import Spinner from "@/Components/Spinner.vue";
+import { Label } from "@/Components/ui/label";
+import { Input } from "@/Components/ui/input";
+import InputError from "@/Components/InputError.vue";
 
-const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
 
 const form = useForm({
     password: "",
 });
 
-const confirmUserDeletion = () => {
-    confirmingUserDeletion.value = true;
-
-    nextTick(() => passwordInput.value.focus());
-};
+const dialogRef = ref(false);
 
 const deleteUser = () => {
     form.delete(route("profile.destroy"), {
         preserveScroll: true,
-        onSuccess: () => closeModal(),
+        onSuccess: () => (dialogRef.value = false),
         onError: () => passwordInput.value.focus(),
         onFinish: () => form.reset(),
     });
 };
-
-const closeModal = () => {
-    confirmingUserDeletion.value = false;
-
-    form.clearErrors();
-    form.reset();
-};
 </script>
 
 <template>
-    <section class="space-y-6">
-        <header>
-            <h2 class="text-lg font-medium text-gray-900">Delete Account</h2>
+    <AlertDialog v-model:open="dialogRef">
+        <AlertDialogTrigger as-child>
+            <Button
+                variant="outline"
+                class="bg-transparent rounded-xl text-red-500 border-red-500 hover:bg-red-600/50 transition-all duration-500 ease-in-out"
+            >
+                <Icon icon="line-md:account-delete" width="24" height="24" />
+                Hapus Akun
+            </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent class="sm:max-w-lg bg-gray-800 border-none">
+            <AlertDialogHeader>
+                <AlertDialogTitle class="text-white">
+                    Apakah Anda yakin ingin menghapus akun Anda?
+                </AlertDialogTitle>
+                <AlertDialogDescription class="text-white">
+                    Setelah akun Anda dihapus, semua sumber daya dan datanya
+                    akan dihapus secara permanen. Masukkan kata sandi Anda untuk
+                    mengonfirmasi bahwa Anda ingin menghapus akun Anda secara
+                    permanen.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
 
-            <p class="mt-1 text-sm text-gray-600">
-                Once your account is deleted, all of its resources and data will
-                be permanently deleted. Before deleting your account, please
-                download any data or information that you wish to retain.
-            </p>
-        </header>
+            <Label for="password" class="text-white">Password</Label>
+            <Input
+                id="password"
+                ref="passwordInput"
+                v-model="form.password"
+                type="password"
+                placeholder="Password"
+                class="w-full h-11 py-3 rounded-lg border border-red-500 focus:outline-none focus-visible:ring-red-500 focus-visible:ring-2 outline-none transition text-white"
+                @keyup.enter="deleteUser"
+            />
+            <InputError :message="form.errors.password" class="mt-2" />
 
-        <DangerButton @click="confirmUserDeletion">Delete Account</DangerButton>
-
-        <Modal :show="confirmingUserDeletion" @close="closeModal">
-            <div class="p-6">
-                <h2 class="text-lg font-medium text-gray-900">
-                    Are you sure you want to delete your account?
-                </h2>
-
-                <p class="mt-1 text-sm text-gray-600">
-                    Once your account is deleted, all of its resources and data
-                    will be permanently deleted. Please enter your password to
-                    confirm you would like to permanently delete your account.
-                </p>
-
-                <div class="mt-6">
-                    <InputLabel
-                        for="password"
-                        value="Password"
-                        class="sr-only"
-                    />
-
-                    <TextInput
-                        id="password"
-                        ref="passwordInput"
-                        v-model="form.password"
-                        type="password"
-                        class="mt-1 block w-3/4"
-                        placeholder="Password"
-                        @keyup.enter="deleteUser"
-                    />
-
-                    <InputError :message="form.errors.password" class="mt-2" />
-                </div>
-
-                <div class="mt-6 flex justify-end">
-                    <SecondaryButton @click="closeModal">
-                        Cancel
-                    </SecondaryButton>
-
-                    <DangerButton
-                        class="ms-3"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                        @click="deleteUser"
-                    >
-                        Delete Account
-                    </DangerButton>
-                </div>
-            </div>
-        </Modal>
-    </section>
+            <AlertDialogFooter>
+                <AlertDialogCancel
+                    class="hover:bg-white/70 hover:border-white/10"
+                >
+                    Batal
+                </AlertDialogCancel>
+                <Button
+                    :disabled="form.processing"
+                    :class="{ 'opacity-25': form.processing }"
+                    @click="deleteUser"
+                    class="bg-red-500 hover:bg-red-600 disabled:cursor-not-allowed"
+                >
+                    <Spinner v-show="form.processing" />
+                    {{ form.processing ? "Menghapus..." : "Hapus" }}
+                </Button>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
 </template>

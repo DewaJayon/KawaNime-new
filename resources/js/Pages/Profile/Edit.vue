@@ -1,9 +1,12 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import DeleteUserForm from './Partials/DeleteUserForm.vue';
-import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
-import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head } from "@inertiajs/vue3";
+import HomeLayout from "@/Layouts/HomeLayout.vue";
+import ProfilePicture from "./Partials/ProfilePicture.vue";
+import { Button } from "@/Components/ui/button";
+import { Icon } from "@iconify/vue";
+import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm.vue";
+import UpdatePasswordForm from "./Partials/UpdatePasswordForm.vue";
+import DeleteUserForm from "./Partials/DeleteUserForm.vue";
 
 defineProps({
     mustVerifyEmail: {
@@ -18,39 +21,57 @@ defineProps({
 <template>
     <Head title="Profile" />
 
-    <AuthenticatedLayout>
-        <template #header>
-            <h2
-                class="text-xl font-semibold leading-tight text-gray-800"
+    <HomeLayout>
+        <main class="max-w-7xl mx-auto px-4 pt-24 sm:px-6 lg:px-8 py-8">
+            <div class="flex items-center justify-between mb-8">
+                <h1 class="text-3xl font-bold">Profile</h1>
+            </div>
+            <div
+                class="rounded-2xl border border-slate-600/50 p-5 bg-white/[0.03] lg:p-6"
             >
-                Profile
-            </h2>
-        </template>
+                <div class="p-5 mb-6 border rounded-2xl border-gray-800 lg:p-6">
+                    <div
+                        class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between"
+                    >
+                        <div
+                            class="flex flex-col items-center w-full gap-6 xl:flex-row"
+                        >
+                            <ProfilePicture />
+                            <div class="order-3 xl:order-2">
+                                <h4
+                                    class="mb-2 text-lg font-semibold text-center text-white xl:text-left"
+                                >
+                                    {{ $page.props.auth.user.name }}
+                                </h4>
+                            </div>
+                        </div>
 
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8"
-                >
-                    <UpdateProfileInformationForm
-                        :must-verify-email="mustVerifyEmail"
-                        :status="status"
-                        class="max-w-xl"
-                    />
+                        <Button
+                            variant="outline"
+                            class="bg-transparent rounded-xl text-accent border-accent hover:bg-gray-600/50 transition-all duration-500 ease-in-out"
+                        >
+                            <Icon
+                                icon="proicons:pencil"
+                                width="24"
+                                height="24"
+                            />
+                            Edit
+                        </Button>
+                        <DeleteUserForm />
+                    </div>
+                </div>
+
+                <div class="p-5 mb-6 border rounded-2xl border-gray-800 lg:p-6">
+                    <UpdateProfileInformationForm />
                 </div>
 
                 <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8"
+                    class="p-5 mb-6 border rounded-2xl border-gray-800 lg:p-6"
+                    v-if="$page.props.auth.user.provider === 'web'"
                 >
-                    <UpdatePasswordForm class="max-w-xl" />
-                </div>
-
-                <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8"
-                >
-                    <DeleteUserForm class="max-w-xl" />
+                    <UpdatePasswordForm />
                 </div>
             </div>
-        </div>
-    </AuthenticatedLayout>
+        </main>
+    </HomeLayout>
 </template>

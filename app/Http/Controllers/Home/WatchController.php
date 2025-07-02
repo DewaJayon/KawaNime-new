@@ -41,7 +41,7 @@ class WatchController extends Controller
             ->whereHas('episodes', function ($query) {
                 $query->where('conversion_status', 'done');
             })
-            ->with('genres')
+            ->with('genres', 'episodes')
             ->limit(10)
             ->get();
 
