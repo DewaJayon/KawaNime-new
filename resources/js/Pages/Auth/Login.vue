@@ -143,7 +143,6 @@ const loginWithGoogle = () => {
 
                 <div class="divider text-sm">Atau</div>
 
-                <!-- Tombol Google -->
                 <button
                     @click="loginWithGoogle"
                     type="button"

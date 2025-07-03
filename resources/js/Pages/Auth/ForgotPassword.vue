@@ -63,7 +63,8 @@ const submit = () => {
                             v-model="form.email"
                             required
                             autofocus
-                            autocomplete="username"
+                            placeholder="Email"
+                            autocomplete="off"
                         />
 
                         <InputError class="mt-2" :message="form.errors.email" />
@@ -71,11 +72,12 @@ const submit = () => {
 
                     <div class="mt-4 flex items-center justify-end">
                         <Button
-                            class="w-full bg-accent hover:bg-accent/60 transition-all ease-in-out duration-300"
+                            class="w-full bg-accent hover:bg-accent/60 transition-all ease-in-out duration-300 text-black"
                             :class="{ 'opacity-25': form.processing }"
                             :disabled="form.processing"
-                            >Email Password Reset Link</Button
                         >
+                            Email Password Reset Link
+                        </Button>
                     </div>
                 </form>
             </CardContent>
