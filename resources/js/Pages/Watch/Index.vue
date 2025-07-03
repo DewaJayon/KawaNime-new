@@ -133,13 +133,6 @@ onMounted(() => {
                             <div class="text-gray-400 text-sm capitalize">
                                 {{ dateCreated }}
                             </div>
-                            <div class="flex items-center space-x-4">
-                                <Button
-                                    variant="outline"
-                                    class="bg-transparent border-accent hover:bg-gray-600/50 transition-all duration-500 ease-in-out text-accent"
-                                    >Download</Button
-                                >
-                            </div>
                         </div>
 
                         <div
