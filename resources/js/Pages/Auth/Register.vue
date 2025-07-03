@@ -43,6 +43,10 @@ const showPasswordConfirmation = () => {
         x.type = "password";
     }
 };
+
+const loginWithGoogle = () => {
+    window.location.href = route("auth.redirect");
+};
 </script>
 
 <template>
@@ -160,15 +164,16 @@ const showPasswordConfirmation = () => {
                     </div>
 
                     <Button
-                        class="w-full bg-accent hover:bg-accent/60 transition-all ease-in-out duration-300"
-                        >Register</Button
+                        class="w-full text-black bg-accent hover:bg-accent/60 transition-all ease-in-out duration-300"
                     >
+                        Register
+                    </Button>
                 </form>
 
                 <div class="divider text-sm">Atau</div>
 
-                <!-- Tombol Google -->
                 <button
+                    @click="loginWithGoogle"
                     type="button"
                     class="w-full flex items-center justify-center gap-3 bg-white text-gray-800 hover:bg-gray-100 py-3 px-4 rounded-lg font-medium transition shadow-sm mb-4"
                 >
@@ -177,7 +182,7 @@ const showPasswordConfirmation = () => {
                         width="23"
                         height="23"
                     />
-                    Register dengan Google
+                    Login dengan Google
                 </button>
 
                 <div class="mt-6 text-center">
