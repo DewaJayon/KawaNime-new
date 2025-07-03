@@ -55,4 +55,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/test', function () {
+    return Number::format(123456789);
+});
+
 require __DIR__ . '/auth.php';

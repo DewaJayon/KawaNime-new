@@ -13,40 +13,33 @@ class AnimeListController extends Controller
     public function index(Request $request)
     {
         $filter = $request->query('filter');
+        $perPage = $request->query('per_page', 12);
 
-        $filteredAnimes = Anime::query()
-            ->with('episodes')
-            ->where("type", $filter)
-            ->orWhere("status", $filter)
-            ->get();
-
-        $defaultAnimes = Anime::whereHas('episodes', function ($query) {
+        $query = Anime::with(['episodes' => function ($query) {
+            $query->where('conversion_status', 'done')
+                ->orderBy('episode_number', 'desc');
+        }])->whereHas('episodes', function ($query) {
             $query->where('conversion_status', 'done');
-        })
-            ->with(['episodes' => function ($query) {
-                $query->where('conversion_status', 'done')
-                    ->orderBy('episode_number', 'desc');
-            }])
-            ->orderBy(
-                Episode::select('episode_number')
-                    ->whereColumn('anime_id', 'animes.id')
-                    ->where('conversion_status', 'done')
-                    ->orderBy('episode_number', 'desc')
-                    ->limit(1)
-            )
-            ->limit(12)
-            ->get();
+        });
 
-        if ($filter === "update-terbaru") {
-            $filteredAnimes = $defaultAnimes;
+        if ($filter && $filter !== 'update-terbaru') {
+            $query->where(function ($q) use ($filter) {
+                $q->where("type", $filter)
+                    ->orWhere("status", $filter);
+            });
         }
 
-        if (!$filter) {
-            $filteredAnimes = $defaultAnimes;
-        }
+        $animes = $query->orderBy(
+            Episode::select('episode_number')
+                ->whereColumn('anime_id', 'animes.id')
+                ->where('conversion_status', 'done')
+                ->orderBy('episode_number', 'desc')
+                ->limit(1)
+        )->paginate($perPage)->withQueryString();
 
         return Inertia::render('AnimeList/Index', [
-            "filteredAnimes" => $filteredAnimes,
+            "animes" => $animes,
+            "filter" => $filter,
         ]);
     }
 }
