@@ -18,37 +18,54 @@ import { ref, watch } from "vue";
 import { Badge } from "@/Components/ui/badge";
 
 const props = defineProps({
-    filteredAnimes: {
-        type: Object,
-        required: true,
-    },
+    animes: Object,
+    filter: String,
 });
 
-const filter = ref("update-terbaru");
-
-const animeFiltered = ref(props.filteredAnimes);
-
+const filter = ref(props.filter ?? "update-terbaru");
+const animeList = ref([...props.animes.data]);
+const nextPageUrl = ref(props.animes.next_page_url);
 const isLoading = ref(false);
 
 watch(filter, (selectedFilter) => {
     isLoading.value = true;
+
     router.get(
         route("anime-list"),
-        {
-            filter: selectedFilter,
-        },
+        { filter: selectedFilter },
         {
             preserveScroll: true,
-            preserveState: true,
-            replace: true,
-            showProgress: true,
-            onSuccess: () => {
-                animeFiltered.value = props.filteredAnimes;
+            preserveState: false,
+            only: ["animes", "filter"],
+            onSuccess: (page) => {
+                animeList.value = page.props.animes.data;
+                nextPageUrl.value = page.props.animes.next_page_url;
                 isLoading.value = false;
             },
         }
     );
 });
+
+const loadMore = () => {
+    if (!nextPageUrl.value) return;
+
+    isLoading.value = true;
+
+    router.get(
+        nextPageUrl.value,
+        { filter: filter.value },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            only: ["animes"],
+            onSuccess: (page) => {
+                animeList.value.push(...page.props.animes.data);
+                nextPageUrl.value = page.props.animes.next_page_url;
+                isLoading.value = false;
+            },
+        }
+    );
+};
 </script>
 
 <template>
@@ -85,7 +102,7 @@ watch(filter, (selectedFilter) => {
                 <div
                     class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
                 >
-                    <template v-for="anime in animeFiltered">
+                    <template v-for="anime in animeList" :key="anime.id">
                         <Link
                             v-if="filter === 'update-terbaru'"
                             v-for="episode in anime.episodes"
@@ -154,6 +171,8 @@ watch(filter, (selectedFilter) => {
                     class="flex items-center justify-center w-full mx-auto pt-8"
                 >
                     <Button
+                        v-if="nextPageUrl"
+                        @click="loadMore"
                         variant="outline"
                         class="bg-transparent border-accent hover:bg-gray-600/50 transition-all duration-500 ease-in-out text-accent"
                     >
