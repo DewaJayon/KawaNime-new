@@ -20,6 +20,7 @@
         "laravel/tinker": "^2.10.1",
         "pbmedia/laravel-ffmpeg": "^8.7",
         "spatie/laravel-backup": "^9.3",
+        "spatie/laravel-sitemap": "^7.3",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {

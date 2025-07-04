@@ -1,2 +1,6 @@
 User-agent: *
+Allow: /
+
+Sitemap: https://kawanime.dewajayon.my.id/sitemap.xml
+
 Disallow:

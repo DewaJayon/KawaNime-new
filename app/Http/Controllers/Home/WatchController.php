@@ -48,6 +48,7 @@ class WatchController extends Controller
         return Inertia::render('Watch/Index', [
             'episode'       => $episode,
             'nextEpisode'   => $nextEpisode,
+            'description'   => 'Nonton ' . $episode->title . ' sub indo kualitas HD di KawaNime.',
             'recomendations' => $recomendations
         ]);
     }
