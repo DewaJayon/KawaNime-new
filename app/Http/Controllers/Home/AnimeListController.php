@@ -18,7 +18,7 @@ class AnimeListController extends Controller
         if (!$filter || $filter === 'update-terbaru') {
             $episodes = Episode::with('anime')
                 ->where('conversion_status', 'done')
-                ->orderBy('episode_number', 'desc')
+                ->latest()
                 ->paginate($perPage)
                 ->withQueryString();
 
