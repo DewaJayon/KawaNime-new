@@ -242,7 +242,7 @@ const submit = () => {
 
             <DialogFooter>
                 <Progress
-                    :model-value="form.progress"
+                    :model-value="form.progress?.percentage ?? 0"
                     v-show="form.processing"
                     class="bg-zinc-600 mt-3 [&>*]:bg-white"
                 />

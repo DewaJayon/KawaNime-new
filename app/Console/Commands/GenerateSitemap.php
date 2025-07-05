@@ -42,7 +42,7 @@ class GenerateSitemap extends Command
         }
 
         $publicHtmlPath = env('PUBLIC_HTML_PATH', '');
-        $sitemap->writeToFile(base_path("../public_html/{$publicHtmlPath}/sitemap.xml"));
+        $sitemap->writeToFile(base_path("../public_html/{$publicHtmlPath}/kawanime-sitemap.xml"));
 
         $this->info('Sitemap generated!');
     }
