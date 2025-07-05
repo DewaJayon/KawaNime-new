@@ -17,7 +17,35 @@ const description = computed(
 
 <template>
     <Head>
+        <link rel="canonical" href="https://kawanime.dewajayon.my.id/" />
+
+        <title>Kawanime - Streaming Anime Sub Indo Terbaik</title>
         <meta name="description" :content="description" />
+
+        <!-- Open Graph -->
+        <meta
+            property="og:title"
+            content="Kawanime - Nonton Anime Sub Indo HD"
+        />
+        <meta property="og:description" :content="description" />
+        <meta property="og:url" content="https://kawanime.dewajayon.my.id" />
+        <meta property="og:type" content="website" />
+        <meta
+            property="og:image"
+            content="https://kawanime.dewajayon.my.id/img/logo.jpg"
+        />
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+            name="twitter:title"
+            content="Kawanime - Nonton Anime Sub Indo HD"
+        />
+        <meta name="twitter:description" :content="description" />
+        <meta
+            name="twitter:image"
+            content="https://kawanime.dewajayon.my.id/img/logo.jpg"
+        />
     </Head>
     <div class="bg-black min-h-screen text-white">
         <HomeNav />

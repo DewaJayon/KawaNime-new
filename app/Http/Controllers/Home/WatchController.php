@@ -42,7 +42,7 @@ class WatchController extends Controller
                 $query->where('conversion_status', 'done');
             })
             ->with('genres', 'episodes')
-            ->limit(10)
+            ->limit(2)
             ->get();
 
         return Inertia::render('Watch/Index', [

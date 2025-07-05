@@ -19,12 +19,24 @@ import { Badge } from "@/Components/ui/badge";
 
 const props = defineProps({
     animes: Object,
+    episodes: Object, // Tambahkan ini
     filter: String,
 });
 
 const filter = ref(props.filter ?? "update-terbaru");
-const animeList = ref([...props.animes.data]);
-const nextPageUrl = ref(props.animes.next_page_url);
+const isUpdateTerbaru = filter.value === "update-terbaru";
+
+const animeList = ref(
+    isUpdateTerbaru
+        ? [...(props.episodes?.data ?? [])]
+        : [...(props.animes?.data ?? [])]
+);
+const nextPageUrl = ref(
+    isUpdateTerbaru
+        ? props.episodes?.next_page_url
+        : props.animes?.next_page_url
+);
+
 const isLoading = ref(false);
 
 watch(filter, (selectedFilter) => {
@@ -36,10 +48,18 @@ watch(filter, (selectedFilter) => {
         {
             preserveScroll: true,
             preserveState: false,
-            only: ["animes", "filter"],
+            only: ["animes", "episodes", "filter"],
             onSuccess: (page) => {
-                animeList.value = page.props.animes.data;
-                nextPageUrl.value = page.props.animes.next_page_url;
+                const isUpdateTerbaru = selectedFilter === "update-terbaru";
+
+                animeList.value = isUpdateTerbaru
+                    ? page.props.episodes?.data ?? []
+                    : page.props.animes?.data ?? [];
+
+                nextPageUrl.value = isUpdateTerbaru
+                    ? page.props.episodes?.next_page_url
+                    : page.props.animes?.next_page_url;
+
                 isLoading.value = false;
             },
         }
@@ -57,10 +77,20 @@ const loadMore = () => {
         {
             preserveScroll: true,
             preserveState: true,
-            only: ["animes"],
+            only: ["animes", "episodes"],
             onSuccess: (page) => {
-                animeList.value.push(...page.props.animes.data);
-                nextPageUrl.value = page.props.animes.next_page_url;
+                const isUpdateTerbaru = filter.value === "update-terbaru";
+
+                const newData = isUpdateTerbaru
+                    ? page.props.episodes?.data ?? []
+                    : page.props.animes?.data ?? [];
+
+                animeList.value.push(...newData);
+
+                nextPageUrl.value = isUpdateTerbaru
+                    ? page.props.episodes?.next_page_url
+                    : page.props.animes?.next_page_url;
+
                 isLoading.value = false;
             },
         }
@@ -102,10 +132,10 @@ const loadMore = () => {
                 <div
                     class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
                 >
-                    <template v-for="anime in animeList" :key="anime.id">
+                    <template v-if="filter === 'update-terbaru'">
                         <Link
-                            v-if="filter === 'update-terbaru'"
-                            v-for="episode in anime.episodes"
+                            v-for="episode in animeList"
+                            :key="episode.id"
                             :href="`/watch/${episode.slug}`"
                         >
                             <Card
@@ -115,9 +145,8 @@ const loadMore = () => {
                                     class="relative overflow-hidden rounded-lg bg-gray-900 transition-transform group-hover:scale-105 p-0"
                                 >
                                     <img
-                                        :src="`/${anime.thumbnail}`"
-                                        :alt="anime.title"
-                                        class="w-full h-64 object-cover"
+                                        :src="`/${episode.anime?.thumbnail}`"
+                                        :alt="episode.anime?.title"
                                     />
                                     <div class="absolute top-2 right-2">
                                         <Badge
@@ -137,9 +166,12 @@ const loadMore = () => {
                                 </div>
                             </Card>
                         </Link>
+                    </template>
 
+                    <template v-else>
                         <Link
-                            v-else
+                            v-for="anime in animeList"
+                            :key="anime.id"
                             :href="`${route('anime-detail', anime.slug)}`"
                         >
                             <Card
@@ -167,7 +199,6 @@ const loadMore = () => {
                 </div>
 
                 <div
-                    v-if="filterList.length > 12"
                     class="flex items-center justify-center w-full mx-auto pt-8"
                 >
                     <Button

@@ -15,6 +15,19 @@ class AnimeListController extends Controller
         $filter = $request->query('filter');
         $perPage = $request->query('per_page', 12);
 
+        if (!$filter || $filter === 'update-terbaru') {
+            $episodes = Episode::with('anime')
+                ->where('conversion_status', 'done')
+                ->orderBy('episode_number', 'desc')
+                ->paginate($perPage)
+                ->withQueryString();
+
+            return Inertia::render('AnimeList/Index', [
+                "episodes" => $episodes,
+                "filter" => $filter,
+            ]);
+        }
+
         $query = Anime::with(['episodes' => function ($query) {
             $query->where('conversion_status', 'done')
                 ->orderBy('episode_number', 'desc');
@@ -22,12 +35,10 @@ class AnimeListController extends Controller
             $query->where('conversion_status', 'done');
         });
 
-        if ($filter && $filter !== 'update-terbaru') {
-            $query->where(function ($q) use ($filter) {
-                $q->where("type", $filter)
-                    ->orWhere("status", $filter);
-            });
-        }
+        $query->where(function ($q) use ($filter) {
+            $q->where("type", $filter)
+                ->orWhere("status", $filter);
+        });
 
         $animes = $query->orderBy(
             Episode::select('episode_number')
